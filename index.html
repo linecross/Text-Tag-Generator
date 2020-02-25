@@ -16,98 +16,152 @@
 </head>
 
 <body>
-	<div id='textGeneratorApp'>		
-		<div class='config-panel'>
-			<h3>文字部份</h3>
-			<div>文字：<input type="text" v-model="text.input"></div>
-			<div>大小：<input type="range" v-model="text.fontSize" min="8" max="48"><span>{{text.fontSize}}</span> </div>
-			<div>字型：<input type="text" v-model="text.fontFamily"> </div>
-			<div>顏色：<input id='text-color-cpicker'><span>{{text.color}}</span> </div>
-			<div>間距：<input type="range" v-model="text.letterSpacing" min="-3" max="3"><span>{{text.letterSpacing}}</span> </div>
-			<div>水平位移：<input type="range" v-model="text.marginLeft" min="-40" max="40"><span>{{text.marginLeft}}</span> </div>
-			<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
-			<br/>
+	<div id='textGeneratorApp'>
+		<span>
+			<input type="checkbox" id="viewBoxConfig" :value="true" v-model="isBoxMode">
+			<label for="viewBoxConfig">內框設定</label>&nbsp;
 
-			
-		</div>
+			<input type="checkbox" id="viewBorderConfig" :value="true" v-model="isDetailBorderMode">
+			<label for="viewBorderConfig">詳細邊框設定</label>
+		</span>
+		<div class='main-panel'>
+			<div class='config-panel'>
+				<h3>文字部份</h3>
+				<div>顏色：<input id='text-color-cpicker'><span>{{text.color}}</span> </div>
+				<div>文字：<input type="text" v-model="text.content"></div>
+				<div>大小：<input type="range" v-model="text.fontSize" min="8" max="48"><span>{{text.fontSize}}</span> </div>
+				<div>字型：<input type="text" v-model="text.fontFamily"> </div>
+				<div>間距：<input type="range" v-model="text.letterSpacing" min="-3" max="3"><span>{{text.letterSpacing}}</span> </div>
+				<div>水平位移：<input type="range" v-model="text.marginLeft" min="-40" max="40"><span>{{text.marginLeft}}</span> </div>
+				<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
+				<br/>
 
-		<div class='config-panel'>
-			<h3>標籤部份</h3>
-			<div>顏色：<input id='container-backgroundColor-cpicker'><span>{{container.backgroundColor}}</span> </div>
-			<div>寬度：<input type="range" v-model="container.width" min="8" max="128"><span>{{container.width}}</span> </div>
-			<div>高度：<input type="range" v-model="container.height" min="8" max="48"><span>{{container.height}}</span> </div>
+				<h3>標籤部份</h3>
+				<div>顏色：<input id='container-backgroundColor-cpicker'><span>{{container.backgroundColor}}</span> </div>
+				<div>寬度：<input type="range" v-model="container.width" min="8" max="128"><span>{{container.width}}</span> </div>
+				<div>高度：<input type="range" v-model="container.height" min="8" max="48"><span>{{container.height}}</span> </div>
 
-			進階邊框設定：
-			<input type="radio" id="advBorder-yes" :value="true" v-model="isContainerAdvance">
-			<label for="advBorder-yes">是</label>
-			<input type="radio" id="advBorder-no" :value="false" v-model="isContainerAdvance">
-			<label for="advBorder-no">否</label>
-			<br/>
-
-			<div>邊框圓角：
-				<div :class="{isHide: isContainerAdvance}">
-					<input type="range" v-model="container.borderRadius" min="0" max="48"><span>{{container.borderRadius}}</span>
+				<div>邊框圓角：
+					<div :class="{isHide: isDetailBorderMode}">
+						<input type="range" v-model="container.borderRadius" min="0" max="48"><span>{{container.borderRadius}}</span>
+					</div>
+					<div :class="{isHide: !isDetailBorderMode}">
+						左上：<input type="number" v-model="container.borderTopLeftRadius" min="0" max="48">
+						　右上：<input type="number" v-model="container.borderTopRightRadius" min="0" max="48"><br>
+						左下：<input type="number" v-model="container.borderBottomLeftRadius" min="0" max="48">
+						　右上：<input type="number" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
+					</div>
 				</div>
-				<div :class="{isHide: !isContainerAdvance}">
-					左上：<input type="number" v-model="container.borderTopLeftRadius" min="0" max="48">
-					　右上：<input type="number" v-model="container.borderTopRightRadius" min="0" max="48"><br>
-					左下：<input type="number" v-model="container.borderBottomLeftRadius" min="0" max="48">
-					　右上：<input type="number" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
+				<div>邊框大小：
+					<div :class="{isHide: isDetailBorderMode}">
+						<input type="range" v-model="container.borderWidth" min="0" max="25"><span>{{container.borderWidth}}</span>
+					</div>
+					<div :class="{isHide: !isDetailBorderMode}">
+						左：<input type="number" v-model="container.borderLeftWidth" min="0" max="25">
+						　右：<input type="number" v-model="container.borderRightWidth" min="0" max="25"><br>
+						上：<input type="number" v-model="container.borderTopWidth" min="0" max="25">
+						　下：<input type="number" v-model="container.borderBottomWidth" min="0" max="25"><br>
+					</div>
 				</div>
-			</div>
-			<div>邊框大小：
-				<div :class="{isHide: isContainerAdvance}">
-					<input type="range" v-model="container.borderWidth" min="0" max="25"><span>{{container.borderWidth}}</span>
-				</div>
-				<div :class="{isHide: !isContainerAdvance}">
-					左：<input type="number" v-model="container.borderLeftWidth" min="0" max="25">
-					　右：<input type="number" v-model="container.borderRightWidth" min="0" max="25"><br>
-					上：<input type="number" v-model="container.borderTopWidth" min="0" max="25">
-					　下：<input type="number" v-model="container.borderBottomWidth" min="0" max="25"><br>
-				</div>
-			</div>
-			
-			<div>邊框顏色：
-				<div :class="{isHide: isContainerAdvance}">
-					<input id="container-borderColor-cpicker"><span>{{container.borderColor}}</span>
-				</div>
-				<div :class="{isHide: !isContainerAdvance}">
-					左：<input id="container-borderLeftColor-cpicker"><span>{{container.borderLeftColor}}</span>
-					　右：<input id="container-borderRightColor-cpicker"><span>{{container.borderRightColor}}</span><br>
-					上：<input id="container-borderTopColor-cpicker"><span>{{container.borderTopColor}}</span>
-					　下：<input id="container-borderBottomColor-cpicker"><span>{{container.borderBottomColor}}</span><br>
+				
+				<div>邊框顏色：
+					<div :class="{isHide: isDetailBorderMode}">
+						<input id="container-borderColor-cpicker"><span>{{container.borderColor}}</span>
+					</div>
+					<div :class="{isHide: !isDetailBorderMode}">
+						左：<input id="container-borderLeftColor-cpicker"><span>{{container.borderLeftColor}}</span><br>
+						右：<input id="container-borderRightColor-cpicker"><span>{{container.borderRightColor}}</span><br>
+						上：<input id="container-borderTopColor-cpicker"><span>{{container.borderTopColor}}</span><br>
+						下：<input id="container-borderBottomColor-cpicker"><span>{{container.borderBottomColor}}</span><br>
+					</div>
 				</div>
 			</div>
-			<br/>
-		</div>
 
-		<div class='view-panel'>
-			
-			<h3>儲存圖片</h3>
-			<button id='saveImg' type="button" @click="saveImg">儲存圖片</button>
-			<a id="link"></a>
-			<br/>
+			<div class='config-panel' :class='{isHide: !isBoxMode}'>
+				<h3>左側文字</h3>
+				<div>背景顏色：<input id='leftBox-backgroundColor-cpicker'><span>{{leftBox.backgroundColor}}</span> </div>
+				<div>文字顏色：<input id='leftBox-color-cpicker'><span>{{leftBox.color}}</span> </div>
+				<div>文字：<input type="text" v-model="leftBox.content"></div>
+				<div>大小：<input type="range" v-model="leftBox.fontSize" min="8" max="48"><span>{{leftBox.fontSize}}</span> </div>
+				<div>字型：<input type="text" v-model="leftBox.fontFamily"> </div>
+				<div>水平位移：<input type="range" v-model="leftBox.marginLeft" min="-40" max="40"><span>{{leftBox.marginLeft}}</span> </div>
+				<div>text-shadow: <input type="text" v-model="leftBox.textShadow"></div>
 
-			<h3>原始HTML</h3>
-			<div id="capture" class='container' :style="containerStyle">
+				<h3>內框部份</h3>
+				<div>顏色：<input id='box-backgroundColor-cpicker'><span>{{box.backgroundColor}}</span> </div>
+				留白：
+				<div>
+					左：<input type="number" v-model="box.paddingLeft" min="0" max="15">
+					　右：<input type="number" v-model="box.paddingRight" min="0" max="15"><br>
+					上：<input type="number" v-model="box.paddingTop" min="0" max="15">
+					　下：<input type="number" v-model="box.paddingBottom" min="0" max="15"><br>
+				</div>
 
-				<span class='box'>
-					<span class='text' :style="textStyle">{{text.input}}</span>
-				</span>
+				<div>邊框圓角：
+					<div :class="{isHide: isDetailBorderMode}">
+						<input type="range" v-model="box.borderRadius" min="0" max="48"><span>{{box.borderRadius}}</span>
+					</div>
+					<div :class="{isHide: !isDetailBorderMode}">
+						左上：<input type="number" v-model="box.borderTopLeftRadius" min="0" max="48">
+						　右上：<input type="number" v-model="box.borderTopRightRadius" min="0" max="48"><br>
+						左下：<input type="number" v-model="box.borderBottomLeftRadius" min="0" max="48">
+						　右上：<input type="number" v-model="box.borderBottomRightRadius" min="0" max="48"><br>
+					</div>
+				</div>
+				<div>邊框大小：
+					<div :class="{isHide: isDetailBorderMode}">
+						<input type="range" v-model="box.borderWidth" min="0" max="15"><span>{{box.borderWidth}}</span>
+					</div>
+					<div :class="{isHide: !isDetailBorderMode}">
+						左：<input type="number" v-model="box.borderLeftWidth" min="0" max="15">
+						　右：<input type="number" v-model="box.borderRightWidth" min="0" max="15"><br>
+						上：<input type="number" v-model="box.borderTopWidth" min="0" max="15">
+						　下：<input type="number" v-model="box.borderBottomWidth" min="0" max="15"><br>
+					</div>
+				</div>
+				
+				<div>邊框顏色：
+					<div :class="{isHide: isDetailBorderMode}">
+						<input id="box-borderColor-cpicker"><span>{{box.borderColor}}</span>
+					</div>
+					<div :class="{isHide: !isDetailBorderMode}">
+						左：<input id="box-borderLeftColor-cpicker"><span>{{box.borderLeftColor}}</span><br>
+						右：<input id="box-borderRightColor-cpicker"><span>{{box.borderRightColor}}</span><br>
+						上：<input id="box-borderTopColor-cpicker"><span>{{box.borderTopColor}}</span><br>
+						下：<input id="box-borderBottomColor-cpicker"><span>{{box.borderBottomColor}}</span><br>
+					</div>
+				</div>
 			</div>
-			<br/>
 
-			<h3>生成圖片</h3>
-			<div id='result'></div>
-			<br/>
+			<div class='view-panel'>
+				<h3>JSON</h3>
+				<button type="button" @click="importJson">匯入</button>&nbsp;
+				<button type="button" @click="exportJson">匯出</button><br/>
+				<textarea id='jsonData'></textarea>
+				
+				<h3>儲存圖片</h3>
+				<button id='saveImg' type="button" @click="saveImg">儲存圖片</button>
+				<a id="link"></a>
 
-			<div><h3>放大預覽（輔助）</h3>
-			<input type="range" v-model="zoomLevel" min="2" max="20"><span>{{zoomLevel}}</span> </div>
-			<div class='preview' :style="previewZoom">
-				<div id="preview" class='container' :style="containerStyle">
-					<span class='box'>
-						<span class='text' :style="textStyle">{{text.input}}</span>
+				<h3>原始HTML</h3>
+				<div id="capture" class='container' :style="containerStyle">
+					<span class='box' :style="boxStyle">
+						<span class='leftBox' :style="leftBoxStyle">{{leftBox.content}}</span>
+						<span class='text' :style="textStyle">{{text.content}}</span>
 					</span>
+				</div>
+
+				<div><h3>生成圖片</h3>
+				放大預覽：<br>
+				<input type="range" v-model="zoomLevel" min="1" max="10"><span>{{zoomLevel}}</span> </div>
+				<div class='preview' :style="previewZoom">
+					<div id='result'></div>
+					<!-- <div id="preview" class='container' :style="containerStyle">
+						<span class='box' :style="boxStyle">
+							<span class='leftBox' :style="leftBoxStyle">{{leftBox.content}}</span>
+							<span class='text' :style="textStyle">{{text.content}}</span>
+						</span>
+					</div> -->
 				</div>
 			</div>
 		</div>
