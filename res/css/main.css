@@ -1,0 +1,59 @@
+body{
+    font-family: "微軟正黑體","Microsoft JhengHei";
+    font-size: 16px;
+}
+
+#textGeneratorApp{
+    display: flex;
+}
+
+.config-panel{
+    min-width: 350px;
+    width: 10%;
+}
+
+.config-panel input{
+    width: 140px;
+}
+.config-panel input[type="radio"]{
+    width: auto;
+}
+.config-panel input[type="number"]{
+    width: 60px;
+    height: auto;
+}
+
+.config-panel > div{
+    margin: 5px;
+}
+
+.config-panel span{
+    margin-left: 10px;
+    font-size: 0.8em
+}
+
+.container{
+    font-family: "新細明體","PMingLiU", "MingLiU", "微軟正黑體","Microsoft JhengHei";
+	font-size: 12px;
+	line-height: 12px;
+    color: #ffe1ab;
+    
+    background: #F00; 
+	max-width: 48px; 
+	max-height: 20px;
+	border-style: solid;
+	text-align: center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.text{
+    white-space: nowrap;
+}
+.preview {
+	transform-origin: top left;
+}
+
+.isHide{
+    display: none;
+}

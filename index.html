@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Text Tag Generator</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			  crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+	<script type="text/javascript" src="./res/js/html2canvas.min.js"></script>
+	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js'></script>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+	<link rel='stylesheet' href='./res/css/main.css' />
+</head>
+
+<body>
+	<div id='textGeneratorApp'>		
+		<div class='config-panel'>
+			<h3>文字部份</h3>
+			<div>文字：<input type="text" v-model="text.input"></div>
+			<div>大小：<input type="range" v-model="text.fontSize" min="8" max="48"><span>{{text.fontSize}}</span> </div>
+			<div>字型：<input type="text" v-model="text.fontFamily"> </div>
+			<div>顏色：<input id='text-color-cpicker'><span>{{text.color}}</span> </div>
+			<div>間距：<input type="range" v-model="text.letterSpacing" min="0" max="3"><span>{{text.letterSpacing}}</span> </div>
+			<div>水平位移：<input type="range" v-model="text.marginLeft" min="-40" max="40"><span>{{text.marginLeft}}</span> </div>
+			<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
+			<br/>
+
+			
+		</div>
+
+		<div class='config-panel'>
+			<h3>標籤部份</h3>
+			<div>顏色：<input id='container-backgroundColor-cpicker'><span>{{container.backgroundColor}}</span> </div>
+			<div>寬度：<input type="range" v-model="container.width" min="8" max="128"><span>{{container.width}}</span> </div>
+			<div>高度：<input type="range" v-model="container.height" min="8" max="48"><span>{{container.height}}</span> </div>
+
+			進階邊框設定：
+			<input type="radio" id="advBorder-yes" :value="true" v-model="isContainerAdvance">
+			<label for="advBorder-yes">是</label>
+			<input type="radio" id="advBorder-no" :value="false" v-model="isContainerAdvance">
+			<label for="advBorder-no">否</label>
+			<br/>
+
+			<div>邊框圓角：
+				<div :class="{isHide: isContainerAdvance}">
+					<input type="range" v-model="container.borderRadius" min="0" max="48"><span>{{container.borderRadius}}</span>
+				</div>
+				<div :class="{isHide: !isContainerAdvance}">
+					左上：<input type="number" v-model="container.borderTopLeftRadius" min="0" max="48">
+					　右上：<input type="number" v-model="container.borderTopRightRadius" min="0" max="48"><br>
+					左下：<input type="number" v-model="container.borderBottomLeftRadius" min="0" max="48">
+					　右上：<input type="number" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
+				</div>
+			</div>
+			<div>邊框大小：
+				<div :class="{isHide: isContainerAdvance}">
+					<input type="range" v-model="container.borderWidth" min="0" max="25"><span>{{container.borderWidth}}</span>
+				</div>
+				<div :class="{isHide: !isContainerAdvance}">
+					左：<input type="number" v-model="container.borderLeftWidth" min="0" max="25">
+					　右：<input type="number" v-model="container.borderRightWidth" min="0" max="25"><br>
+					上：<input type="number" v-model="container.borderTopWidth" min="0" max="25">
+					　下：<input type="number" v-model="container.borderBottomWidth" min="0" max="25"><br>
+				</div>
+			</div>
+			
+			<div>邊框顏色：
+				<div :class="{isHide: isContainerAdvance}">
+					<input id="container-borderColor-cpicker"><span>{{container.borderColor}}</span>
+				</div>
+				<div :class="{isHide: !isContainerAdvance}">
+					左：<input id="container-borderLeftColor-cpicker"><span>{{container.borderLeftColor}}</span>
+					　右：<input id="container-borderRightColor-cpicker"><span>{{container.borderRightColor}}</span><br>
+					上：<input id="container-borderTopColor-cpicker"><span>{{container.borderTopColor}}</span>
+					　下：<input id="container-borderBottomColor-cpicker"><span>{{container.borderBottomColor}}</span><br>
+				</div>
+			</div>
+			<br/>
+		</div>
+
+		<div class='view-panel'>
+			
+			<h3>儲存圖片</h3>
+			<button id='saveImg' type="button" @click="saveImg">儲存圖片</button>
+			<a id="link"></a>
+			<br/>
+
+			<h3>原始HTML</h3>
+			<div id="capture" class='container' :style="containerStyle">
+
+				<span class='box'>
+					<span class='text' :style="textStyle">{{text.input}}</span>
+				</span>
+			</div>
+			<br/>
+
+			<h3>生成圖片</h3>
+			<div id='result'></div>
+			<br/>
+
+			<div><h3>放大預覽（輔助）</h3>
+			<input type="range" v-model="zoomLevel" min="2" max="20"><span>{{zoomLevel}}</span> </div>
+			<div class='preview' :style="previewZoom">
+				<div id="preview" class='container' :style="containerStyle">
+					<span class='box'>
+						<span class='text' :style="textStyle">{{text.input}}</span>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="./res/js/main.js"></script>
+
+	
+</body>
+</html>
