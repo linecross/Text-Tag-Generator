@@ -23,7 +23,7 @@
 			<div>大小：<input type="range" v-model="text.fontSize" min="8" max="48"><span>{{text.fontSize}}</span> </div>
 			<div>字型：<input type="text" v-model="text.fontFamily"> </div>
 			<div>顏色：<input id='text-color-cpicker'><span>{{text.color}}</span> </div>
-			<div>間距：<input type="range" v-model="text.letterSpacing" min="0" max="3"><span>{{text.letterSpacing}}</span> </div>
+			<div>間距：<input type="range" v-model="text.letterSpacing" min="-3" max="3"><span>{{text.letterSpacing}}</span> </div>
 			<div>水平位移：<input type="range" v-model="text.marginLeft" min="-40" max="40"><span>{{text.marginLeft}}</span> </div>
 			<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
 			<br/>
