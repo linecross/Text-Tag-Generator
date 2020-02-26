@@ -132,7 +132,6 @@ var textGeneratorApp = new Vue({
 				backgroundColor:null, 
 				logging: false,
 				allowTaint: true,
-				useCORS: true,
 			}).then(function(canvas) {
 				canvas.id = 'myCanvas';
 				let resultDiv = document.getElementById('result');
