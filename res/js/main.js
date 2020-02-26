@@ -8,6 +8,7 @@ var textGeneratorApp = new Vue({
 			fontFamily: '新細明體',
 			letterSpacing: 0,
 			marginLeft: 0,
+			marginTop: 0,
 			textShadow: '',
 		},
 		container: {
@@ -37,6 +38,7 @@ var textGeneratorApp = new Vue({
 			fontSize: 8,
 			fontFamily: 'Segoe UI Symbol',
 			marginLeft: 0,
+			marginTop: 0,
 			textShadow: '',
 		},
 		box: {
