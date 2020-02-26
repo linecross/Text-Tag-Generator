@@ -28,6 +28,9 @@
 
 			<input type="checkbox" id="numInputConfig" :value="true" v-model="uiConfig.useNumberInput">
 			<label for="numInputConfig">數字輸入</label>&nbsp;
+
+			<input type="checkbox" id="styleOperationConfig" :value="true" v-model="uiConfig.showStyleOperation">
+			<label for="styleOperationConfig">模板及JSON</label>&nbsp;
 		</span>
 		<div class='main-panel'>
 			<div class='config-panel'>
@@ -160,28 +163,42 @@
 			</div>
 
 			<div class='view-panel'>
-				<h3>模板</h3>
-				<select v-model="styles.selected">
-					<optgroup label="預設">
-					  <option v-for="(content, key) in styles.preset.default" :value="'default-'+key">{{key}}</option>
-					</optgroup>
-					<!-- <optgroup label="自訂">
-						<option v-for="(content, key) in styles.preset.custom" :value="'custom-'+key">{{key}}</option>
-					</optgroup> -->
-					<optgroup label="本機">
-						<option v-for="(content, key) in styles.preset.local" :value="'local-'+key">{{key}}</option>
-					</optgroup>
-				</select>
-				<br/>
-				<button type="button" @click="deleteLocalStyle()">刪除（本機）</button><br/><br/>
-				<div>名稱：<input type="text" v-model="styles.newStyleName"></div>
-				<button type="button" @click="saveLocalStyle()">儲存（本機）</button>
-				
-
-				<h3>JSON</h3>
-				<button type="button" @click="importJson()">匯入</button>&nbsp;
-				<button type="button" @click="exportJson()">匯出</button><br/>
-				<textarea id='jsonData'></textarea>
+				<div :class="{isHide: !uiConfig.showStyleOperation}">
+					<h3>模板</h3>
+					<table>
+						<tr>
+							<td>
+								<select v-model="styles.selected">
+									<optgroup label="預設">
+									<option v-for="(content, key) in styles.preset.default" :value="'default-'+key">{{key}}</option>
+									</optgroup>
+									<!-- <optgroup label="自訂">
+										<option v-for="(content, key) in styles.preset.custom" :value="'custom-'+key">{{key}}</option>
+									</optgroup> -->
+									<optgroup label="本機">
+										<option v-for="(content, key) in styles.preset.local" :value="'local-'+key">{{key}}</option>
+									</optgroup>
+								</select>
+							</td>
+							<td>
+								<button type="button" @click="deleteLocalStyle()">刪除（本機）</button>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div>名稱：<input type="text" v-model="styles.newStyleName"></div>
+							</td>
+							<td>
+								<button type="button" @click="saveLocalStyle()">儲存（本機）</button>
+							</td>
+						</tr>
+					</table>
+					
+					<h3>JSON</h3>
+					<button type="button" @click="importJson()">匯入</button>&nbsp;
+					<button type="button" @click="exportJson()">匯出</button><br/>
+					<textarea id='jsonData'></textarea>
+				</div>
 				
 				<h3>儲存圖片</h3>
 				<button id='saveImg' type="button" @click="saveImg()">儲存圖片</button>

@@ -37,6 +37,10 @@ body{
     font-size: 0.8em
 }
 
+.view-panel td > select, .view-panel td > input{
+    width: 100%;
+}
+
 .container{
     font-family: "新細明體","PMingLiU", "MingLiU", "微軟正黑體","Microsoft JhengHei";
 	
