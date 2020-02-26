@@ -10,6 +10,7 @@
 			  crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
 	<script type="text/javascript" src="./res/js/html2canvas.min.js"></script>
+	<!-- <script type="text/javascript" src="./res/js/html2canvas.min-1.0.0-rc.5.js"></script> -->
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js'></script>
 	<script type="text/javascript" src="./res/js/style-presets.js"></script>
 	
@@ -43,6 +44,7 @@
 				<div>字型：<input type="text" v-model="text.fontFamily"> </div>
 				<div>間距：<input :type="numInputType" v-model="text.letterSpacing" min="-3" max="3"><span :class="{isHide: uiConfig.useNumberInput}">{{text.letterSpacing}}</span> </div>
 				<div>水平位移：<input :type="numInputType" v-model="text.marginLeft" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginLeft}}</span> </div>
+				<div>垂直位移：<input :type="numInputType" v-model="text.marginTop" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginTop}}</span> </div>
 				<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
 				<br/>
 
@@ -106,6 +108,7 @@
 				<div>大小：<input :type="numInputType" v-model="leftBox.fontSize" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.fontSize}}</span> </div>
 				<div>字型：<input type="text" v-model="leftBox.fontFamily"> </div>
 				<div>水平位移：<input :type="numInputType" v-model="leftBox.marginLeft" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginLeft}}</span> </div>
+				<div>垂直位移：<input :type="numInputType" v-model="leftBox.marginTop" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginTop}}</span> </div>
 				<div>text-shadow: <input type="text" v-model="leftBox.textShadow"></div>
 
 				<h3>內框部份</h3>
@@ -205,6 +208,7 @@
 				<a id="link"></a>
 
 				<h3>原始HTML</h3>
+				<p style='color: red'>（各瀏覽器渲染不同，一律以生成圖片（一倍放大）為準，請根據圖片進行微調）</p>
 				<div id="capture" class='container' :style="containerStyle">
 					<span class='box' :style="boxStyle">
 						<span class='leftBox' :style="leftBoxStyle">{{leftBox.content}}</span>
