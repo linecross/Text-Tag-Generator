@@ -65,6 +65,7 @@ var textGeneratorApp = new Vue({
 			isBoxMode: false,
 			isDetailBorderMode: false,
 			useNumberInput: false,
+			showStyleOperation: false,
 			zoomLevel: 5,
 		},
 		styles: {
