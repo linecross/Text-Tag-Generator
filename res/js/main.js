@@ -61,17 +61,29 @@ var textGeneratorApp = new Vue({
 			borderLeftColor: 'transparent',
 			borderRightColor: 'transparent',
 		},
-		isBoxMode: false,
-		isDetailBorderMode: false,
-		zoomLevel: 2,
+		uiConfig:{
+			isBoxMode: false,
+			isDetailBorderMode: false,
+			useNumberInput: false,
+			zoomLevel: 5,
+		},
+		styles: {
+			preset: {},
+			selected: '',
+			newStyleName: ''
+		},
 	},
 	mounted: function(){
-		this.refreshCanvas();
-		let vm = this;
 		this.createColorPicker('text');
 		this.createColorPicker('container');
 		this.createColorPicker('leftBox');
 		this.createColorPicker('box');
+
+		this.styles.preset = stylePreset;
+		let localStyles = localStorage.getItem("localStyles");
+		if (localStyles != null){
+			this.styles.preset.local = JSON.parse(localStyles);
+		}
 	},
 	updated: function(){
 		this.refreshCanvas();
@@ -98,21 +110,31 @@ var textGeneratorApp = new Vue({
 							vm[dataId][colorId] = color !== null ? color.toRgbString() : 'transparent';
 						},
 					});
+
+					vm.$watch(dataId + '.' + colorId, function(newValue, oldValue) {
+						this.setColorPicker(dataId + '-' + colorId);
+					});
 				}
 			}
 		},
+		setColorPicker(key){
+			
+			let inputColor = $('#' + key).val();
+			let spectrumColor = $('#' + key + '-cpicker').spectrum('get');
+			// if (isColor(inputColor) && !isSameColor(inputColor, spectrumColor)){
+				if (isColor(inputColor)){
+				$('#' + key + '-cpicker').spectrum('set',inputColor);
+			}
+		},
 		refreshCanvas(){
-			html2canvas(document.getElementById('capture'), {backgroundColor:null, logging: false}).then(function(canvas) {
+			html2canvas(document.getElementById('capture'), {
+				backgroundColor:null, 
+				logging: false,
+			}).then(function(canvas) {
 				canvas.id = 'myCanvas';
 				let resultDiv = document.getElementById('result');
-				let previewDiv = document.getElementById('preview');
-				if (resultDiv.firstChild !== null){
-					resultDiv.removeChild(resultDiv.firstChild);
-					resultDiv.appendChild(canvas);
-				}
-				else{
-					resultDiv.appendChild(canvas);
-				}
+				resultDiv.innerHTML = '';
+				resultDiv.appendChild(canvas);
 			});
 		},
 		getStyle(obj, isFixDimension = false){
@@ -131,13 +153,13 @@ var textGeneratorApp = new Vue({
 					result['minWidth'] = val;
 					result['maxWidth'] = val;
 				}
-				else if (!this.isDetailBorderMode && key == 'borderRadius'){
+				else if (!this.uiConfig.isDetailBorderMode && key == 'borderRadius'){
 					result['borderTopLeftRadius'] = val;
 					result['borderTopRightRadius'] = val;
 					result['borderBottomLeftRadius'] = val;
 					result['borderBottomRightRadius'] = val;
 				}
-				else if (!this.isDetailBorderMode && (key == 'borderWidth' || key == 'borderColor')){
+				else if (!this.uiConfig.isDetailBorderMode && (key == 'borderWidth' || key == 'borderColor')){
 					result[key.replace('border', 'borderLeft')] = val;
 					result[key.replace('border', 'borderRight')] = val;
 					result[key.replace('border', 'borderTop')] = val;
@@ -155,20 +177,65 @@ var textGeneratorApp = new Vue({
 			link.click();
 		},
 		exportJson(){
-			document.getElementById('jsonData').value = JSON.stringify(this.$data);
+			let exportData = Object.assign({}, this.$data);
+			delete exportData.styles;
+			document.getElementById('jsonData').value = JSON.stringify(exportData);
 		},
-		importJson(){
-			let json = document.getElementById('jsonData').value;
+		importJson(json){
+			if (json == null || json == undefined){
+				json = document.getElementById('jsonData').value;
+			}
 			if (json.trim() !== ''){
 				let jsonObj = JSON.parse(json);
-				Object.keys(this.$data).forEach(key => this.$data[key] = null);
-				Object.entries(jsonObj).forEach(entry => Vue.set(this.$data, entry[0], entry[1]));
+
+				if (jsonObj.text != null){
+					Vue.set(this.$data, 'text', jsonObj.text);
+				}
+				if (jsonObj.container != null){
+					Vue.set(this.$data, 'container', jsonObj.container);
+				}
+				if (jsonObj.leftBox != null){
+					Vue.set(this.$data, 'leftBox', jsonObj.leftBox);
+				}
+				if (jsonObj.box != null){
+					Vue.set(this.$data, 'box', jsonObj.box);
+				}
+				if (jsonObj.uiConfig != null){
+					Vue.set(this.$data, 'uiConfig', jsonObj.uiConfig);
+				}
+
+				this.$forceUpdate();
+				
 			}
+		},
+		saveLocalStyle(){
+			if (this.styles.newStyleName.trim() != ''){
+				let exportData = Object.assign({}, this.$data);
+				delete exportData.style;
+				this.styles.preset.local[this.styles.newStyleName] = JSON.stringify(exportData);
+
+				localStorage.setItem("localStyles", JSON.stringify(this.$data.styles.preset.local));
+				this.styles.selected = 'local-'+this.styles.newStyleName;
+				this.styles.newStyleName = '';
+				this.$forceUpdate();
+			}
+		},
+		deleteLocalStyle(){
+			if (this.styles.selected.startsWith('local-')){
+				let styleName = this.styles.selected.replace('local-', '');
+				delete this.styles.preset.local[styleName];
+				localStorage.setItem("localStyles", JSON.stringify(this.$data.styles.preset.local));
+				this.$forceUpdate();
+			}
+			
 		}
 	},
 	computed: {
+		numInputType(){
+			return this.uiConfig.useNumberInput ? 'number' : 'range';
+		},
 		previewZoom(){
-			return 'transform: scale(' + this.zoomLevel+ ')';
+			return 'transform: scale(' + this.uiConfig.zoomLevel+ ')';
 		},
 		textStyle(){
 			return this.getStyle(this.text);
@@ -183,6 +250,17 @@ var textGeneratorApp = new Vue({
 			return this.getStyle(this.container, true);
 		}
 	},
+	watch:{
+		"styles.selected": function(val, oldVal){
+			if (val === null || val === undefined || val === ''){
+				return;
+			}
+			this.importJson(resolve(this.styles.preset, val));
+			if (val.startsWith('local-')){
+				this.styles.newStyleName = val.replace('local-', '');
+			}
+		},
+	}
 });
 
 
@@ -191,4 +269,26 @@ function isNumber(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
 }
   
-  
+function isColor(strColor){
+	var s = new Option().style;
+	s.color = strColor;
+	return s.color != null && s.color != '';
+}
+
+function isSameColor(str1, str2){
+	if (str1 === str2){
+		return true;
+	}
+
+	var s1 = new Option().style;
+	var s2 = new Option().style;
+	s1.color = str1;
+	s2.color = str2;
+	return s1.color == s2.color;
+}
+
+function resolve(obj, path) {
+    return path.split('-').reduce(function(prev, curr) {
+        return prev ? prev[curr] : null
+    }, obj || self)
+}
