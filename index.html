@@ -29,8 +29,15 @@
 			<input type="checkbox" id="viewBorderConfig" :value="true" v-model="uiConfig.isDetailBorderMode">
 			<label for="viewBorderConfig">詳細邊框設定</label>&nbsp;
 
+			<input type="checkbox" id="viewImageConfig" :value="true" v-model="uiConfig.isImageMode">
+			<label for="viewImageConfig">背景圖設定</label>&nbsp;
+
+			&nbsp;|&nbsp;
+
 			<input type="checkbox" id="numInputConfig" :value="true" v-model="uiConfig.useNumberInput">
 			<label for="numInputConfig">數字輸入</label>&nbsp;
+
+			&nbsp;|&nbsp;
 
 			<input type="checkbox" id="styleOperationConfig" :value="true" v-model="uiConfig.showStyleOperation">
 			<label for="styleOperationConfig">模板及JSON</label>&nbsp;
@@ -45,8 +52,14 @@
 				<div>大小：<input :type="numInputType" v-model="text.fontSize" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{text.fontSize}}</span> </div>
 				<div>字型：<input type="text" v-model="text.fontFamily"> </div>
 				<div>間距：<input :type="numInputType" v-model="text.letterSpacing" min="-3" max="3"><span :class="{isHide: uiConfig.useNumberInput}">{{text.letterSpacing}}</span> </div>
-				<div>水平位移：<input :type="numInputType" v-model="text.marginLeft" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginLeft}}</span> </div>
-				<div>垂直位移：<input :type="numInputType" v-model="text.marginTop" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginTop}}</span> </div>
+				<div>空白：
+					<select v-model="text.whiteSpace">
+						<option value="normal">正常</option>
+						<option value="nowrap">不換行</option>
+					</select>
+				</div>
+				<div>水平位移：<input :type="numInputType" v-model="text.marginLeft" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginLeft}}</span> </div>
+				<div>垂直位移：<input :type="numInputType" v-model="text.marginTop" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginTop}}</span> </div>
 				<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
 				<br/>
 
@@ -54,6 +67,7 @@
 				<div>顏色：<input id='container-backgroundColor-cpicker'>
 					<input id='container-backgroundColor' class='colorInput' type="text" v-model="container.backgroundColor">
 				</div>
+
 				<div>寬度：<input :type="numInputType" v-model="container.width" min="8" max="128"><span :class="{isHide: uiConfig.useNumberInput}">{{container.width}}</span> </div>
 				<div>高度：<input :type="numInputType" v-model="container.height" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{container.height}}</span> </div>
 
@@ -109,8 +123,15 @@
 				<div>文字：<input type="text" v-model="leftBox.content"></div>
 				<div>大小：<input :type="numInputType" v-model="leftBox.fontSize" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.fontSize}}</span> </div>
 				<div>字型：<input type="text" v-model="leftBox.fontFamily"> </div>
-				<div>水平位移：<input :type="numInputType" v-model="leftBox.marginLeft" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginLeft}}</span> </div>
-				<div>垂直位移：<input :type="numInputType" v-model="leftBox.marginTop" min="-40" max="40"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginTop}}</span> </div>
+				<div>間距：<input :type="numInputType" v-model="leftBox.letterSpacing" min="-3" max="3"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.letterSpacing}}</span> </div>
+				<div>空白：
+					<select v-model="leftBox.whiteSpace">
+						<option value="normal">正常</option>
+						<option value="nowrap">不換行</option>
+					</select>
+				</div>
+				<div>水平位移：<input :type="numInputType" v-model="leftBox.marginLeft" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginLeft}}</span> </div>
+				<div>垂直位移：<input :type="numInputType" v-model="leftBox.marginTop" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginTop}}</span> </div>
 				<div>text-shadow: <input type="text" v-model="leftBox.textShadow"></div>
 
 				<h3>內框部份</h3>
@@ -165,6 +186,42 @@
 						<input id='box-borderBottomColor' class='colorInput' type="text" v-model="box.borderBottomColor"><br>
 					</div>
 				</div>
+			</div>
+
+			<div class='config-panel' :class='{isHide: !uiConfig.isImageMode}'>
+				<h3>標籤背景</h3>
+				<form id='container-image-file-form'>圖片：
+					<input type='file' id="container-image-file-input" @change="uploadImage('container')"/><br/>
+					<img class='upload-image' id="container-image-file-preview" src="#" /><br/>
+				</form>
+				<button type="button" @click="clearImage('container')">清除圖片</button><br/><br/>
+				<div>背景重複：
+					<select v-model="container.backgroundRepeat">
+						<option value="repeat">是</option>
+						<option value="no-repeat">否</option>
+						<option value="repeat-x">重複X</option>
+						<option value="repeat-y">重複Y</option>
+					</select>
+				</div>
+				<div>位置：<input type="text" v-model="container.backgroundPosition"></div>
+				<div>大小：<input type="text" v-model="container.backgroundSize"></div>
+
+				<h3>內框背景</h3>
+				<form id='box-image-file-form'>圖片：
+					<input type='file' id="box-image-file-input" @change="uploadImage('box')"/><br/>
+					<img class='upload-image' id="box-image-file-preview" src="#" /><br/>
+				</form>
+				<button type="button" @click="clearImage('box')">清除圖片</button><br/><br/>
+				<div>背景重複：
+					<select v-model="box.backgroundRepeat">
+						<option value="repeat">是</option>
+						<option value="no-repeat">否</option>
+						<option value="repeat-x">重複X</option>
+						<option value="repeat-y">重複Y</option>
+					</select>
+				</div>
+				<div>位置：<input type="text" v-model="box.backgroundPosition"></div>
+				<div>大小：<input type="text" v-model="box.backgroundSize"></div>
 			</div>
 
 			<div class='view-panel'>

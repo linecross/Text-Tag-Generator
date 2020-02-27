@@ -10,9 +10,14 @@ var textGeneratorApp = new Vue({
 			marginLeft: 0,
 			marginTop: 0,
 			textShadow: '',
+			whiteSpace: 'nowrap',
 		},
 		container: {
 			backgroundColor: 'rgb(228,236,255)',
+			backgroundImage: '',
+			backgroundRepeat: 'no-repeat',
+			backgroundPosition: 'center',
+			backgroundSize: 'auto',
 			width: 40,
 			height: 14,
 			borderRadius: 5,
@@ -37,12 +42,18 @@ var textGeneratorApp = new Vue({
 			backgroundColor: 'transparent',
 			fontSize: 8,
 			fontFamily: 'Segoe UI Symbol',
+			letterSpacing: 0,
 			marginLeft: 0,
 			marginTop: 0,
 			textShadow: '',
+			whiteSpace: 'nowrap',
 		},
 		box: {
 			backgroundColor: 'transparent',
+			backgroundImage: '',
+			backgroundRepeat: 'no-repeat',
+			backgroundPosition: 'center',
+			backgroundSize: 'auto',
 			paddingLeft: 0,
 			paddingRight: 0,
 			paddingTop: 0,
@@ -66,6 +77,7 @@ var textGeneratorApp = new Vue({
 		uiConfig:{
 			isBoxMode: false,
 			isDetailBorderMode: false,
+			isImageMode: false,
 			useNumberInput: false,
 			showStyleOperation: false,
 			zoomLevel: 5,
@@ -231,6 +243,25 @@ var textGeneratorApp = new Vue({
 				this.$forceUpdate();
 				
 			}
+		},
+		uploadImage(key){
+			let input = document.getElementById(key+'-image-file-input');
+			if (input.files && input.files[0]) {
+				let fileReader = new FileReader();
+				
+				let vm = this;
+				fileReader.onload = function (e) {
+					document.getElementById(key+'-image-file-preview').src = e.target.result;
+					vm[key].backgroundImage = "url("+e.target.result+")";
+				}
+				
+				fileReader.readAsDataURL(input.files[0]);
+			}
+		},
+		clearImage(key){
+			document.getElementById(key+'-image-file-form').reset();
+			document.getElementById(key+'-image-file-preview').src = '#';
+			this[key].backgroundImage = '';
 		},
 		saveLocalStyle(){
 			if (this.styles.newStyleName.trim() != ''){
