@@ -65,6 +65,9 @@ body{
 	transform-origin: top left;
 }
 
+#result{
+    width: 100%;
+}
 
 .isHide{
     display: none;
