@@ -125,23 +125,37 @@ var textGeneratorApp = new Vue({
 			let inputColor = $('#' + key).val();
 			let spectrumColor = $('#' + key + '-cpicker').spectrum('get');
 			// if (isColor(inputColor) && !isSameColor(inputColor, spectrumColor)){
-				if (isColor(inputColor)){
+			if (isColor(inputColor)){
 				$('#' + key + '-cpicker').spectrum('set',inputColor);
 			}
 		},
 		refreshCanvas(){
-			html2canvas(document.getElementById('capture'), {
-				backgroundColor:null, 
-				logging: false,
+			let x = document.getElementById('capture').offsetLeft;
+			let y = document.getElementById('capture').offsetTop;
+			let width = Math.ceil(document.getElementById("capture").getBoundingClientRect().width);
+			let height = Math.ceil(document.getElementById("capture").getBoundingClientRect().height);
+
+			let options = {
+				backgroundColor: null, 
+				logging: true,
 				allowTaint: true,
-			}).then(function(canvas) {
+				x: x,
+				y: y,
+				width: width,
+				height: height,
+				scrollX: 0,
+				scrollY: 0,
+			};
+
+			html2canvas(document.getElementById('capture'), options).then(function(canvas) {
+				let canvasEle = document.getElementById('myCanvas');
+				canvasEle.remove();
 				canvas.id = 'myCanvas';
 				let resultDiv = document.getElementById('result');
-				resultDiv.innerHTML = '';
 				resultDiv.appendChild(canvas);
 			});
 		},
-		getStyle(obj, isFixDimension = false){
+		getStyle(obj, isFixDimension = false, debugItem){
 			let result = Object.assign({}, obj);
 			for (key of Object.keys(result)){
 				if (isNumber(result[key])){
@@ -169,6 +183,12 @@ var textGeneratorApp = new Vue({
 					result[key.replace('border', 'borderTop')] = val;
 					result[key.replace('border', 'borderBottom')] = val;
 				}
+			}
+
+			for (key of Object.keys(result)){
+				delete result['borderRadius'];
+				delete result['borderWidth'];
+				delete result['borderColor'];
 			}
 			return result;
 		},

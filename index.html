@@ -10,7 +10,7 @@
 			  crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
 	<script type="text/javascript" src="./res/js/html2canvas.min.js"></script>
-	<!-- <script type="text/javascript" src="./res/js/html2canvas.min-1.0.0-rc.5.js"></script> -->
+	<!-- <script type="text/javascript" src="./res/js/html2canvas.js"></script> -->
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js'></script>
 	<script type="text/javascript" src="./res/js/style-presets.js"></script>
 	
@@ -19,8 +19,7 @@
 </head>
 
 <body>
-	<h3>標籤製造器</h3>
-	<a href='index-beta.html'>＞點此前往新版</a>（在chrome渲染較準確，有理想效果，但其他瀏覽器無法使用）
+	<h3>標籤製造器1.0</h3>
 	<hr>
 	<div id='textGeneratorApp'>
 		<span>
@@ -222,9 +221,8 @@
 				<div><h3>生成圖片</h3>
 				放大預覽：<br>
 				<input type="range" v-model="uiConfig.zoomLevel" min="1" max="10"><span>{{uiConfig.zoomLevel}}</span> </div>
-
 				<div class='preview' :style="previewZoom">
-					<div id='result'></div>
+					<div id='result'><canvas id='myCanvas'></canvas></div>
 					<!-- <div id="preview" class='container' :style="containerStyle">
 						<span class='box' :style="boxStyle">
 							<span class='leftBox' :style="leftBoxStyle">{{leftBox.content}}</span>
@@ -240,4 +238,5 @@
 
 	
 </body>
+
 </html>
