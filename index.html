@@ -83,255 +83,271 @@
 		</span>
 		<div class='main-panel'>
 			<div class='config-panel' @change='triggerUIChange'>
-				<h3>文字部份</h3>
-				<div :class="{isHide: !userConfig.isAdvEdit}">
-					背景色：<input id='text-backgroundColor-cpicker'>
-					<input id='text-backgroundColor' class='colorInput' type="text" v-model="text.backgroundColor">
-				</div>
-				<div>顏色：<input id='text-color-cpicker'>
-					<input id='text-color' class='colorInput' type="text" v-model="text.color">
-				</div>
-				<div>文字：<input type="text" v-model="text.content"></div>
-				<div>大小：<input :type="numRangeInputType" v-model="text.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{text.fontSize}}</span> </div>
-				<div>字型：<input type="text" v-model="text.fontFamily"> </div>
-				<div>間距：<input :type="numRangeInputType" v-model="text.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{text.letterSpacing}}</span> </div>
-				<div>空白：
-					<select v-model="text.whiteSpace">
-						<option value="normal">正常</option>
-						<option value="nowrap">不換行</option>
-					</select>
-				</div>
-				<div>水平位移：<input :type="numRangeInputType" v-model="text.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{text.marginLeft}}</span> </div>
-				<div>垂直位移：<input :type="numRangeInputType" v-model="text.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{text.marginTop}}</span> </div>
-				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="text.customCss"></textarea></div>
-				<br/>
-
-				<h3>標籤部份</h3>
-				<div>顏色：<input id='container-backgroundColor-cpicker'>
-					<input id='container-backgroundColor' class='colorInput' type="text" v-model="container.backgroundColor">
-				</div>
-
-				<div>寬度：<input :type="numRangeInputType" v-model="container.width" min="8" max="128"><span :class="{isHide: hideNumLabel}">{{container.width}}</span> </div>
-				<div>高度：<input :type="numRangeInputType" v-model="container.height" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{container.height}}</span> </div>
-
-				<div>邊框圓角：
-					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numRangeInputType" v-model="container.borderRadius" min="0" max="48"><span :class="{isHide: hideNumLabel}">{{container.borderRadius}}</span>
+				<h3 @click='toggleSection("text")'>文字部份</h3>
+				<div id='text-config-section' class='config-section'>
+					<div :class="{isHide: !userConfig.isAdvEdit}">
+						背景色：<input id='text-backgroundColor-cpicker'>
+						<input id='text-backgroundColor' class='colorInput' type="text" v-model="text.backgroundColor">
 					</div>
-					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左上：<input :type="numInputType" v-model="container.borderTopLeftRadius" min="0" max="48">
-						　右上：<input :type="numInputType" v-model="container.borderTopRightRadius" min="0" max="48"><br>
-						左下：<input :type="numInputType" v-model="container.borderBottomLeftRadius" min="0" max="48">
-						　右上：<input :type="numInputType" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
+					<div>顏色：<input id='text-color-cpicker'>
+						<input id='text-color' class='colorInput' type="text" v-model="text.color">
 					</div>
-				</div>
-				<div>邊框大小：
-					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numRangeInputType" v-model="container.borderWidth" min="0" max="25"><span :class="{isHide: hideNumLabel}">{{container.borderWidth}}</span>
-					</div>
-					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左：<input :type="numInputType" v-model="container.borderLeftWidth" min="0" max="25">
-						　右：<input :type="numInputType" v-model="container.borderRightWidth" min="0" max="25"><br>
-						上：<input :type="numInputType" v-model="container.borderTopWidth" min="0" max="25">
-						　下：<input :type="numInputType" v-model="container.borderBottomWidth" min="0" max="25"><br>
-					</div>
-				</div>
-				
-				<div>邊框顏色：
-					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input id="container-borderColor-cpicker">
-						<input id='container-borderColor' class='colorInput' type="text" v-model="container.borderColor">
-					</div>
-					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左：<input id="container-borderLeftColor-cpicker">
-						<input id='container-borderLeftColor' class='colorInput' type="text" v-model="container.borderLeftColor"><br>
-						右：<input id="container-borderRightColor-cpicker">
-						<input id='container-borderRightColor' class='colorInput' type="text" v-model="container.borderRightColor"><br>
-						上：<input id="container-borderTopColor-cpicker">
-						<input id='container-borderTopColor' class='colorInput' type="text" v-model="container.borderTopColor"><br>
-						下：<input id="container-borderBottomColor-cpicker">
-						<input id='container-borderBottomColor' class='colorInput' type="text" v-model="container.borderBottomColor"><br>
-					</div>
-				</div>
-
-				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="container.customCss"></textarea></div>
-			</div>
-
-			<div class='config-panel' :class='{isHide: !uiConfig.isBoxMode}' @change='triggerUIChange'>
-				<h3>左側文字</h3>
-				<div>背景顏色：<input id='leftBox-backgroundColor-cpicker'>
-					<input id='leftBox-backgroundColor' class='colorInput' type="text" v-model="leftBox.backgroundColor">
-				</div>
-				<div>文字顏色：<input id='leftBox-color-cpicker'>
-					<input id='leftBox-color' class='colorInput' type="text" v-model="leftBox.color">
-				</div>
-				<div>文字：<input type="text" v-model="leftBox.content"></div>
-				<div>大小：<input :type="numRangeInputType" v-model="leftBox.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.fontSize}}</span> </div>
-				<div>字型：<input type="text" v-model="leftBox.fontFamily"> </div>
-				<div>間距：<input :type="numRangeInputType" v-model="leftBox.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{leftBox.letterSpacing}}</span> </div>
-				<div>空白：
-					<select v-model="leftBox.whiteSpace">
-						<option value="normal">正常</option>
-						<option value="nowrap">不換行</option>
-					</select>
-				</div>
-				<div>水平位移：<input :type="numRangeInputType" v-model="leftBox.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.marginLeft}}</span> </div>
-				<div>垂直位移：<input :type="numRangeInputType" v-model="leftBox.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.marginTop}}</span> </div>
-				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="leftBox.customCss"></textarea></div>
-
-				<div :class='{isHide: !userConfig.isAdvEdit}'>
-					<h3>右側文字</h3>
-					<div>背景顏色：<input id='rightBox-backgroundColor-cpicker'>
-						<input id='rightBox-backgroundColor' class='colorInput' type="text" v-model="rightBox.backgroundColor">
-					</div>
-					<div>文字顏色：<input id='rightBox-color-cpicker'>
-						<input id='rightBox-color' class='colorInput' type="text" v-model="rightBox.color">
-					</div>
-					<div>文字：<input type="text" v-model="rightBox.content"></div>
-					<div>大小：<input :type="numRangeInputType" v-model="rightBox.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.fontSize}}</span> </div>
-					<div>字型：<input type="text" v-model="rightBox.fontFamily"> </div>
-					<div>間距：<input :type="numRangeInputType" v-model="rightBox.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{rightBox.letterSpacing}}</span> </div>
+					<div>文字：<input type="text" v-model="text.content"></div>
+					<div>大小：<input :type="numRangeInputType" v-model="text.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{text.fontSize}}</span> </div>
+					<div>字型：<input type="text" v-model="text.fontFamily"> </div>
+					<div>間距：<input :type="numRangeInputType" v-model="text.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{text.letterSpacing}}</span> </div>
 					<div>空白：
-						<select v-model="rightBox.whiteSpace">
+						<select v-model="text.whiteSpace">
 							<option value="normal">正常</option>
 							<option value="nowrap">不換行</option>
 						</select>
 					</div>
-					<div>水平位移：<input :type="numRangeInputType" v-model="rightBox.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.marginLeft}}</span> </div>
-					<div>垂直位移：<input :type="numRangeInputType" v-model="rightBox.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.marginTop}}</span> </div>
-					<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="rightBox.customCss"></textarea></div>
+					<div>水平位移：<input :type="numRangeInputType" v-model="text.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{text.marginLeft}}</span> </div>
+					<div>垂直位移：<input :type="numRangeInputType" v-model="text.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{text.marginTop}}</span> </div>
+					<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="text.customCss"></textarea></div>
 				</div>
 
+				<h3 @click='toggleSection("container")'>標籤部份</h3>
+				<div id='container-config-section' class='config-section'>
+					<div>顏色：<input id='container-backgroundColor-cpicker'>
+						<input id='container-backgroundColor' class='colorInput' type="text" v-model="container.backgroundColor">
+					</div>
 
-				<h3>內框部份</h3>
-				<div>顏色：<input id='box-backgroundColor-cpicker'>
-					<input id='box-backgroundColor' class='colorInput' type="text" v-model="box.backgroundColor">
+					<div>寬度：<input :type="numRangeInputType" v-model="container.width" min="8" max="128"><span :class="{isHide: hideNumLabel}">{{container.width}}</span> </div>
+					<div>高度：<input :type="numRangeInputType" v-model="container.height" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{container.height}}</span> </div>
+
+					<div>邊框圓角：
+						<div :class="{isHide: uiConfig.isDetailBorderMode}">
+							<input :type="numRangeInputType" v-model="container.borderRadius" min="0" max="48"><span :class="{isHide: hideNumLabel}">{{container.borderRadius}}</span>
+						</div>
+						<div :class="{isHide: !uiConfig.isDetailBorderMode}">
+							左上：<input :type="numInputType" v-model="container.borderTopLeftRadius" min="0" max="48">
+							　右上：<input :type="numInputType" v-model="container.borderTopRightRadius" min="0" max="48"><br>
+							左下：<input :type="numInputType" v-model="container.borderBottomLeftRadius" min="0" max="48">
+							　右上：<input :type="numInputType" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
+						</div>
+					</div>
+					<div>邊框大小：
+						<div :class="{isHide: uiConfig.isDetailBorderMode}">
+							<input :type="numRangeInputType" v-model="container.borderWidth" min="0" max="25"><span :class="{isHide: hideNumLabel}">{{container.borderWidth}}</span>
+						</div>
+						<div :class="{isHide: !uiConfig.isDetailBorderMode}">
+							左：<input :type="numInputType" v-model="container.borderLeftWidth" min="0" max="25">
+							　右：<input :type="numInputType" v-model="container.borderRightWidth" min="0" max="25"><br>
+							上：<input :type="numInputType" v-model="container.borderTopWidth" min="0" max="25">
+							　下：<input :type="numInputType" v-model="container.borderBottomWidth" min="0" max="25"><br>
+						</div>
+					</div>
+					
+					<div>邊框顏色：
+						<div :class="{isHide: uiConfig.isDetailBorderMode}">
+							<input id="container-borderColor-cpicker">
+							<input id='container-borderColor' class='colorInput' type="text" v-model="container.borderColor">
+						</div>
+						<div :class="{isHide: !uiConfig.isDetailBorderMode}">
+							左：<input id="container-borderLeftColor-cpicker">
+							<input id='container-borderLeftColor' class='colorInput' type="text" v-model="container.borderLeftColor"><br>
+							右：<input id="container-borderRightColor-cpicker">
+							<input id='container-borderRightColor' class='colorInput' type="text" v-model="container.borderRightColor"><br>
+							上：<input id="container-borderTopColor-cpicker">
+							<input id='container-borderTopColor' class='colorInput' type="text" v-model="container.borderTopColor"><br>
+							下：<input id="container-borderBottomColor-cpicker">
+							<input id='container-borderBottomColor' class='colorInput' type="text" v-model="container.borderBottomColor"><br>
+						</div>
+					</div>
+
+					<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="container.customCss"></textarea></div>
 				</div>
-				留白：
-				<div>
-					左：<input :type="numInputType" v-model="box.paddingLeft" min="0" max="15">
-					　右：<input :type="numInputType" v-model="box.paddingRight" min="0" max="15"><br>
-					上：<input :type="numInputType" v-model="box.paddingTop" min="0" max="15">
-					　下：<input :type="numInputType" v-model="box.paddingBottom" min="0" max="15"><br>
+			</div>
+
+			<div class='config-panel' :class='{isHide: !uiConfig.isBoxMode}' @change='triggerUIChange'>
+				<h3 @click='toggleSection("leftBox")'>左側文字</h3>
+				<div id='leftBox-config-section' class='config-section'>
+					<div>背景顏色：<input id='leftBox-backgroundColor-cpicker'>
+						<input id='leftBox-backgroundColor' class='colorInput' type="text" v-model="leftBox.backgroundColor">
+					</div>
+					<div>文字顏色：<input id='leftBox-color-cpicker'>
+						<input id='leftBox-color' class='colorInput' type="text" v-model="leftBox.color">
+					</div>
+					<div>文字：<input type="text" v-model="leftBox.content"></div>
+					<div>大小：<input :type="numRangeInputType" v-model="leftBox.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.fontSize}}</span> </div>
+					<div>字型：<input type="text" v-model="leftBox.fontFamily"> </div>
+					<div>間距：<input :type="numRangeInputType" v-model="leftBox.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{leftBox.letterSpacing}}</span> </div>
+					<div>空白：
+						<select v-model="leftBox.whiteSpace">
+							<option value="normal">正常</option>
+							<option value="nowrap">不換行</option>
+						</select>
+					</div>
+					<div>水平位移：<input :type="numRangeInputType" v-model="leftBox.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.marginLeft}}</span> </div>
+					<div>垂直位移：<input :type="numRangeInputType" v-model="leftBox.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.marginTop}}</span> </div>
+					<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="leftBox.customCss"></textarea></div>
 				</div>
 
-				<div>邊框圓角：
-					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numRangeInputType" v-model="box.borderRadius" min="0" max="48"><span :class="{isHide: hideNumLabel}">{{box.borderRadius}}</span>
-					</div>
-					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左上：<input :type="numInputType" v-model="box.borderTopLeftRadius" min="0" max="48">
-						　右上：<input :type="numInputType" v-model="box.borderTopRightRadius" min="0" max="48"><br>
-						左下：<input :type="numInputType" v-model="box.borderBottomLeftRadius" min="0" max="48">
-						　右上：<input :type="numInputType" v-model="box.borderBottomRightRadius" min="0" max="48"><br>
-					</div>
-				</div>
-				<div>邊框大小：
-					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numRangeInputType" v-model="box.borderWidth" min="0" max="15"><span :class="{isHide: hideNumLabel}">{{box.borderWidth}}</span>
-					</div>
-					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左：<input :type="numInputType" v-model="box.borderLeftWidth" min="0" max="15">
-						　右：<input :type="numInputType" v-model="box.borderRightWidth" min="0" max="15"><br>
-						上：<input :type="numInputType" v-model="box.borderTopWidth" min="0" max="15">
-						　下：<input :type="numInputType" v-model="box.borderBottomWidth" min="0" max="15"><br>
-					</div>
-				</div>
-				
-				<div>邊框顏色：
-					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input id="box-borderColor-cpicker">
-						<input id='box-borderColor' class='colorInput' type="text" v-model="box.borderColor">
-					</div>
-					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左：<input id="box-borderLeftColor-cpicker">
-						<input id='box-borderLeftColor' class='colorInput' type="text" v-model="box.borderLeftColor"><br>
-						右：<input id="box-borderRightColor-cpicker">
-						<input id='box-borderRightColor' class='colorInput' type="text" v-model="box.borderRightColor"><br>
-						上：<input id="box-borderTopColor-cpicker">
-						<input id='box-borderTopColor' class='colorInput' type="text" v-model="box.borderTopColor"><br>
-						下：<input id="box-borderBottomColor-cpicker">
-						<input id='box-borderBottomColor' class='colorInput' type="text" v-model="box.borderBottomColor"><br>
+				<div :class='{isHide: !userConfig.isAdvEdit}'>
+					<h3 @click='toggleSection("rightBox")'>右側文字</h3>
+					<div id='rightBox-config-section' class='config-section'>
+						<div>背景顏色：<input id='rightBox-backgroundColor-cpicker'>
+							<input id='rightBox-backgroundColor' class='colorInput' type="text" v-model="rightBox.backgroundColor">
+						</div>
+						<div>文字顏色：<input id='rightBox-color-cpicker'>
+							<input id='rightBox-color' class='colorInput' type="text" v-model="rightBox.color">
+						</div>
+						<div>文字：<input type="text" v-model="rightBox.content"></div>
+						<div>大小：<input :type="numRangeInputType" v-model="rightBox.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.fontSize}}</span> </div>
+						<div>字型：<input type="text" v-model="rightBox.fontFamily"> </div>
+						<div>間距：<input :type="numRangeInputType" v-model="rightBox.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{rightBox.letterSpacing}}</span> </div>
+						<div>空白：
+							<select v-model="rightBox.whiteSpace">
+								<option value="normal">正常</option>
+								<option value="nowrap">不換行</option>
+							</select>
+						</div>
+						<div>水平位移：<input :type="numRangeInputType" v-model="rightBox.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.marginLeft}}</span> </div>
+						<div>垂直位移：<input :type="numRangeInputType" v-model="rightBox.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.marginTop}}</span> </div>
+						<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="rightBox.customCss"></textarea></div>
 					</div>
 				</div>
-				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="box.customCss"></textarea></div>
+
+				<h3 @click='toggleSection("box")'>內框部份</h3>
+				<div id='box-config-section' class='config-section'>
+					<div>顏色：<input id='box-backgroundColor-cpicker'>
+						<input id='box-backgroundColor' class='colorInput' type="text" v-model="box.backgroundColor">
+					</div>
+					留白：
+					<div>
+						左：<input :type="numInputType" v-model="box.paddingLeft" min="0" max="15">
+						　右：<input :type="numInputType" v-model="box.paddingRight" min="0" max="15"><br>
+						上：<input :type="numInputType" v-model="box.paddingTop" min="0" max="15">
+						　下：<input :type="numInputType" v-model="box.paddingBottom" min="0" max="15"><br>
+					</div>
+
+					<div>邊框圓角：
+						<div :class="{isHide: uiConfig.isDetailBorderMode}">
+							<input :type="numRangeInputType" v-model="box.borderRadius" min="0" max="48"><span :class="{isHide: hideNumLabel}">{{box.borderRadius}}</span>
+						</div>
+						<div :class="{isHide: !uiConfig.isDetailBorderMode}">
+							左上：<input :type="numInputType" v-model="box.borderTopLeftRadius" min="0" max="48">
+							　右上：<input :type="numInputType" v-model="box.borderTopRightRadius" min="0" max="48"><br>
+							左下：<input :type="numInputType" v-model="box.borderBottomLeftRadius" min="0" max="48">
+							　右上：<input :type="numInputType" v-model="box.borderBottomRightRadius" min="0" max="48"><br>
+						</div>
+					</div>
+					<div>邊框大小：
+						<div :class="{isHide: uiConfig.isDetailBorderMode}">
+							<input :type="numRangeInputType" v-model="box.borderWidth" min="0" max="15"><span :class="{isHide: hideNumLabel}">{{box.borderWidth}}</span>
+						</div>
+						<div :class="{isHide: !uiConfig.isDetailBorderMode}">
+							左：<input :type="numInputType" v-model="box.borderLeftWidth" min="0" max="15">
+							　右：<input :type="numInputType" v-model="box.borderRightWidth" min="0" max="15"><br>
+							上：<input :type="numInputType" v-model="box.borderTopWidth" min="0" max="15">
+							　下：<input :type="numInputType" v-model="box.borderBottomWidth" min="0" max="15"><br>
+						</div>
+					</div>
+					
+					<div>邊框顏色：
+						<div :class="{isHide: uiConfig.isDetailBorderMode}">
+							<input id="box-borderColor-cpicker">
+							<input id='box-borderColor' class='colorInput' type="text" v-model="box.borderColor">
+						</div>
+						<div :class="{isHide: !uiConfig.isDetailBorderMode}">
+							左：<input id="box-borderLeftColor-cpicker">
+							<input id='box-borderLeftColor' class='colorInput' type="text" v-model="box.borderLeftColor"><br>
+							右：<input id="box-borderRightColor-cpicker">
+							<input id='box-borderRightColor' class='colorInput' type="text" v-model="box.borderRightColor"><br>
+							上：<input id="box-borderTopColor-cpicker">
+							<input id='box-borderTopColor' class='colorInput' type="text" v-model="box.borderTopColor"><br>
+							下：<input id="box-borderBottomColor-cpicker">
+							<input id='box-borderBottomColor' class='colorInput' type="text" v-model="box.borderBottomColor"><br>
+						</div>
+					</div>
+					<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="box.customCss"></textarea></div>
+				</div>
 			</div>
 
 			<div class='config-panel' :class='{isHide: !uiConfig.isImageMode}' @change='triggerUIChange'>
-				<h3>標籤背景</h3>
-				<form id='container-image-file-form'>圖片：
-					<input type='file' id="container-image-file-input" @change="uploadImage('container')"/><br/>
-					<img class='upload-image' id="container-image-file-preview" src="#" /><br/>
-				</form>
-				<button type="button" @click="clearImage('container')">清除圖片</button><br/><br/>
-				<div>背景重複：
-					<select v-model="container.backgroundRepeat">
-						<option value="repeat">是</option>
-						<option value="no-repeat">否</option>
-						<option value="repeat-x">重複X</option>
-						<option value="repeat-y">重複Y</option>
-					</select>
+				<h3 @click='toggleSection("container-image")'>標籤背景</h3>
+				<div id='container-image-config-section' class='config-section'>
+					<form id='container-image-file-form'>圖片：
+						<input type='file' id="container-image-file-input" @change="uploadImage('container')"/><br/>
+						<img class='upload-image' id="container-image-file-preview" src="#" /><br/>
+					</form>
+					<button type="button" @click="clearImage('container')">清除圖片</button><br/><br/>
+					<div>背景重複：
+						<select v-model="container.backgroundRepeat">
+							<option value="repeat">是</option>
+							<option value="no-repeat">否</option>
+							<option value="repeat-x">重複X</option>
+							<option value="repeat-y">重複Y</option>
+						</select>
+					</div>
+					<div>位置：<input type="text" v-model="container.backgroundPosition"></div>
+					<div>大小：<input type="text" v-model="container.backgroundSize"></div>
 				</div>
-				<div>位置：<input type="text" v-model="container.backgroundPosition"></div>
-				<div>大小：<input type="text" v-model="container.backgroundSize"></div>
 
-				<h3>內框背景</h3>
-				<form id='box-image-file-form'>圖片：
-					<input type='file' id="box-image-file-input" @change="uploadImage('box')"/><br/>
-					<img class='upload-image' id="box-image-file-preview" src="#" /><br/>
-				</form>
-				<button type="button" @click="clearImage('box')">清除圖片</button><br/><br/>
-				<div>背景重複：
-					<select v-model="box.backgroundRepeat">
-						<option value="repeat">是</option>
-						<option value="no-repeat">否</option>
-						<option value="repeat-x">重複X</option>
-						<option value="repeat-y">重複Y</option>
-					</select>
+				<h3 @click='toggleSection("box-image")'>內框背景</h3>
+				<div id='box-image-config-section' class='config-section'>
+					<form id='box-image-file-form'>圖片：
+						<input type='file' id="box-image-file-input" @change="uploadImage('box')"/><br/>
+						<img class='upload-image' id="box-image-file-preview" src="#" /><br/>
+					</form>
+					<button type="button" @click="clearImage('box')">清除圖片</button><br/><br/>
+					<div>背景重複：
+						<select v-model="box.backgroundRepeat">
+							<option value="repeat">是</option>
+							<option value="no-repeat">否</option>
+							<option value="repeat-x">重複X</option>
+							<option value="repeat-y">重複Y</option>
+						</select>
+					</div>
+					<div>位置：<input type="text" v-model="box.backgroundPosition"></div>
+					<div>大小：<input type="text" v-model="box.backgroundSize"></div>
 				</div>
-				<div>位置：<input type="text" v-model="box.backgroundPosition"></div>
-				<div>大小：<input type="text" v-model="box.backgroundSize"></div>
 			</div>
 
 			<div class='view-panel'>
 				<div :class="{isHide: !userConfig.showStyleOperation}">
-					<h3>模板</h3>
-					<table>
-						<tr>
-							<td>
-								<select v-model="styles.selected">
-									<optgroup label="預設">
-									<option v-for="(content, key) in styles.preset.default" :value="'default-'+key">{{key}}</option>
-									</optgroup>
-									<!-- <optgroup label="自訂">
-										<option v-for="(content, key) in styles.preset.custom" :value="'custom-'+key">{{key}}</option>
-									</optgroup> -->
-									<optgroup label="本機">
-										<option v-for="(content, key) in styles.preset.local" :value="'local-'+key">{{key}}</option>
-									</optgroup>
-								</select>
-							</td>
-							<td>
-								<button type="button" @click="deleteLocalStyle()">刪除（本機）</button>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<div>名稱：<input type="text" v-model="styles.newStyleName"></div>
-							</td>
-							<td>
-								<button type="button" @click="saveLocalStyle()">儲存（本機）</button>
-							</td>
-						</tr>
-					</table>
+					<h3 @click='toggleSection("stylePreset")'>模板</h3>
+					<div id='stylePreset-config-section' class='view-section'>
+						<table>
+							<tr>
+								<td>
+									<select v-model="styles.selected">
+										<optgroup label="預設">
+										<option v-for="(content, key) in styles.preset.default" :value="'default-'+key">{{key}}</option>
+										</optgroup>
+										<!-- <optgroup label="自訂">
+											<option v-for="(content, key) in styles.preset.custom" :value="'custom-'+key">{{key}}</option>
+										</optgroup> -->
+										<optgroup label="本機">
+											<option v-for="(content, key) in styles.preset.local" :value="'local-'+key">{{key}}</option>
+										</optgroup>
+									</select>
+								</td>
+								<td>
+									<button type="button" @click="deleteLocalStyle()">刪除（本機）</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<div>名稱：<input type="text" v-model="styles.newStyleName"></div>
+								</td>
+								<td>
+									<button type="button" @click="saveLocalStyle()">儲存（本機）</button>
+								</td>
+							</tr>
+						</table>
+					</div>
 					
-					<h3>JSON</h3>
-					<button type="button" @click="importJson()">匯入</button>&nbsp;
-					<button type="button" @click="exportJson()">匯出</button><br/>
-					<textarea id='jsonData'></textarea><br/>
-					<button type="button" @click="uploadJsonFile()">本機全部匯入</button>&nbsp;
-					<button type="button" @click="exportLocalStyles()">本機全部匯出</button><br/>
-					<input type="file" id="json-file-input" style='display:none' @change="importLocalStyles(this)" />
+					<h3 @click='toggleSection("jsonStyle")'>JSON</h3>
+					<div id='jsonStyle-config-section' class='view-section'>
+						<button type="button" @click="importJson()">匯入</button>&nbsp;
+						<button type="button" @click="exportJson()">匯出</button><br/>
+						<textarea id='jsonData'></textarea><br/>
+						<button type="button" @click="uploadJsonFile()">本機全部匯入</button>&nbsp;
+						<button type="button" @click="exportLocalStyles()">本機全部匯出</button><br/>
+						<input type="file" id="json-file-input" style='display:none' @change="importLocalStyles(this)" />
+					</div>
 				</div>
 				
 				<h3>儲存圖片</h3>
