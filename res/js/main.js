@@ -400,6 +400,9 @@ var textGeneratorApp = new Vue({
 				fileReader.readAsText(input.files[0]);
 			}
 		},
+		toggleSection(key){
+			$('#'+key+'-config-section').toggleClass('collapse');
+		},
 	},
 	computed: {
 		hideNumLabel(){

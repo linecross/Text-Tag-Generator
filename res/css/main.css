@@ -81,6 +81,27 @@ body{
     display: none;
 }
 
+.config-panel h3, .view-panel h3{
+    cursor: pointer;
+    user-select: none;
+}
+
+.config-panel h3::before, .view-panel h3::before{
+    content: '➤';
+}
+
+.config-section:not(.collapse), .view-section:not(.collapse){
+    background: #FFF;
+    /* transition: max-height 1s ease-out; */
+    max-height: 1600px;
+}
+
+.config-section.collapse, .view-section.collapse{
+    max-height: 0px;
+    height: 0px;
+    visibility: hidden;
+}
+
 .upload-image{
     max-width: 300px;
     max-height: 300px;
