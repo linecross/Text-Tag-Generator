@@ -1,3 +1,6 @@
+const INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT'];
+const TEXTGEN_JSON_KEYS=['text', 'container', 'leftBox', 'rightBox', 'box', 'uiConfig'];
+
 var textGeneratorApp = new Vue({
     el: '#textGeneratorApp',
     data: {
@@ -9,8 +12,11 @@ var textGeneratorApp = new Vue({
 			letterSpacing: 0,
 			marginLeft: 0,
 			marginTop: 0,
-			textShadow: '',
 			whiteSpace: 'nowrap',
+			backgroundColor: 'transparent',
+			width: 'auto',
+			height: 'auto',
+			customCss: '',
 		},
 		container: {
 			backgroundColor: 'rgb(228,236,255)',
@@ -35,6 +41,7 @@ var textGeneratorApp = new Vue({
 			borderBottomColor: 'rgb(17,0,184)',
 			borderLeftColor: 'rgb(17,0,184)',
 			borderRightColor: 'rgb(17,0,184)',
+			customCss: '',
 		},
 		leftBox:{
 			content: '',
@@ -45,8 +52,24 @@ var textGeneratorApp = new Vue({
 			letterSpacing: 0,
 			marginLeft: 0,
 			marginTop: 0,
-			textShadow: '',
 			whiteSpace: 'nowrap',
+			width: 'auto',
+			height: 'auto',
+			customCss: '',
+		},
+		rightBox:{
+			content: '',
+			color: 'transparent',
+			backgroundColor: 'transparent',
+			fontSize: 8,
+			fontFamily: 'Segoe UI Symbol',
+			letterSpacing: 0,
+			marginLeft: 0,
+			marginTop: 0,
+			whiteSpace: 'nowrap',
+			width: 'auto',
+			height: 'auto',
+			customCss: '',
 		},
 		box: {
 			backgroundColor: 'transparent',
@@ -73,13 +96,19 @@ var textGeneratorApp = new Vue({
 			borderBottomColor: 'transparent',
 			borderLeftColor: 'transparent',
 			borderRightColor: 'transparent',
+			customCss: '',
 		},
 		uiConfig:{
 			isBoxMode: false,
 			isDetailBorderMode: false,
 			isImageMode: false,
+		},
+		userConfig:{
 			useNumberInput: false,
 			showStyleOperation: false,
+			isRealtimeRender: true,
+			isAdvEdit: false,
+			htmlZoomLevel: 0,
 			zoomLevel: 5,
 		},
 		styles: {
@@ -87,23 +116,41 @@ var textGeneratorApp = new Vue({
 			selected: '',
 			newStyleName: ''
 		},
+		sys: {
+			needRender: true,
+			forceRender: false,
+		},
 	},
 	mounted: function(){
 		this.createColorPicker('text');
 		this.createColorPicker('container');
 		this.createColorPicker('leftBox');
+		this.createColorPicker('rightBox');
 		this.createColorPicker('box');
+
+		let userConfig = localStorage.getItem("userConfig");
+		if (userConfig != null){
+			this.userConfig = JSON.parse(userConfig);
+		}
 
 		this.styles.preset = stylePreset;
 		let localStyles = localStorage.getItem("localStyles");
 		if (localStyles != null){
 			this.styles.preset.local = JSON.parse(localStyles);
 		}
-	},
-	updated: function(){
+
+		this.sys.forceRender = true;
 		this.refreshCanvas();
 	},
+	updated: function(){
+		this.refreshCanvas('data-change');
+	},
 	methods: {
+		triggerUIChange(evt){
+			// if (INPUT_TAGS.includes(evt.target.tagName)){
+				this.refreshCanvas('ui-change');
+			// }
+		},
 		createColorPicker(dataId){
 			let vm = this;
 			for (key of Object.keys(this[dataId])) {
@@ -120,6 +167,7 @@ var textGeneratorApp = new Vue({
 						clickoutFiresChange: true,
 						change: function(color){
 							vm[dataId][colorId] = color !== null ? color.toRgbString() : 'transparent';
+							vm.triggerUIChange();
 						},
 						move: function(color) {
 							vm[dataId][colorId] = color !== null ? color.toRgbString() : 'transparent';
@@ -133,15 +181,21 @@ var textGeneratorApp = new Vue({
 			}
 		},
 		setColorPicker(key){
-			
 			let inputColor = $('#' + key).val();
-			let spectrumColor = $('#' + key + '-cpicker').spectrum('get');
+			// let spectrumColor = $('#' + key + '-cpicker').spectrum('get');
 			// if (isColor(inputColor) && !isSameColor(inputColor, spectrumColor)){
 			if (isColor(inputColor)){
 				$('#' + key + '-cpicker').spectrum('set',inputColor);
 			}
 		},
-		refreshCanvas(){
+		refreshCanvas(triggerType){
+			if (!(this.sys.needRender || this.sys.forceRender)){
+				return;
+			}
+			if (!this.sys.forceRender && (!this.userConfig.isRealtimeRender && triggerType == 'data-change')){
+				return;
+			}
+			
 			let x = document.getElementById('capture').offsetLeft;
 			let y = document.getElementById('capture').offsetTop;
 			let width = Math.ceil(document.getElementById("capture").getBoundingClientRect().width);
@@ -149,7 +203,7 @@ var textGeneratorApp = new Vue({
 
 			let options = {
 				backgroundColor: null, 
-				logging: true,
+				logging: false,
 				allowTaint: true,
 				x: x,
 				y: y,
@@ -166,9 +220,13 @@ var textGeneratorApp = new Vue({
 				let resultDiv = document.getElementById('result');
 				resultDiv.appendChild(canvas);
 			});
+
+			this.sys.needRender = false;
+			this.sys.forceRender = false;
 		},
 		getStyle(obj, isFixDimension = false, debugItem){
 			let result = Object.assign({}, obj);
+
 			for (key of Object.keys(result)){
 				if (isNumber(result[key])){
 					result[key] = result[key] + 'px';
@@ -202,6 +260,19 @@ var textGeneratorApp = new Vue({
 				delete result['borderWidth'];
 				delete result['borderColor'];
 			}
+
+			if (result['customCss'] != null && result['customCss'].length > 0){
+				let cssArr = result['customCss'].split(';');
+				for (let cssStr of cssArr){
+					let css = cssStr.split(':');
+					if (css.length == 2){
+						let prop = _.camelCase(css[0].trim());
+						let val = css[1].trim();
+						result[prop] = val;
+					}
+				}
+			}
+
 			return result;
 		},
 		saveImg(){
@@ -211,38 +282,6 @@ var textGeneratorApp = new Vue({
 			link.setAttribute('download', this.text.content+'.png');
 			link.setAttribute('href', myCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
 			link.click();
-		},
-		exportJson(){
-			let exportData = Object.assign({}, this.$data);
-			delete exportData.styles;
-			document.getElementById('jsonData').value = JSON.stringify(exportData);
-		},
-		importJson(json){
-			if (json == null || json == undefined){
-				json = document.getElementById('jsonData').value;
-			}
-			if (json.trim() !== ''){
-				let jsonObj = JSON.parse(json);
-
-				if (jsonObj.text != null){
-					Vue.set(this.$data, 'text', jsonObj.text);
-				}
-				if (jsonObj.container != null){
-					Vue.set(this.$data, 'container', jsonObj.container);
-				}
-				if (jsonObj.leftBox != null){
-					Vue.set(this.$data, 'leftBox', jsonObj.leftBox);
-				}
-				if (jsonObj.box != null){
-					Vue.set(this.$data, 'box', jsonObj.box);
-				}
-				if (jsonObj.uiConfig != null){
-					Vue.set(this.$data, 'uiConfig', jsonObj.uiConfig);
-				}
-
-				this.$forceUpdate();
-				
-			}
 		},
 		uploadImage(key){
 			let input = document.getElementById(key+'-image-file-input');
@@ -263,6 +302,29 @@ var textGeneratorApp = new Vue({
 			document.getElementById(key+'-image-file-preview').src = '#';
 			this[key].backgroundImage = '';
 		},
+		exportJson(){
+			let exportData = Object.assign({}, this.$data);
+			Object.keys(exportData)
+				.filter(key => !TEXTGEN_JSON_KEYS.includes(key))
+				.forEach(key => delete exportData[key]);
+			document.getElementById('jsonData').value = JSON.stringify(exportData);
+		},
+		importJson(json){
+			if (json == null || json == undefined){
+				json = document.getElementById('jsonData').value;
+			}
+			if (json.trim() !== ''){
+				let jsonObj = JSON.parse(json);
+
+				for (let key of TEXTGEN_JSON_KEYS){
+					if (jsonObj[key] != null){
+						Vue.set(this.$data, key, jsonObj[key]);
+					}
+				}
+
+				this.$forceUpdate();
+			}
+		},
 		saveLocalStyle(){
 			if (this.styles.newStyleName.trim() != ''){
 				let exportData = Object.assign({}, this.$data);
@@ -282,39 +344,133 @@ var textGeneratorApp = new Vue({
 				localStorage.setItem("localStyles", JSON.stringify(this.$data.styles.preset.local));
 				this.$forceUpdate();
 			}
-			
-		}
+		},
+		exportLocalStyles(){
+			let json = JSON.stringify(this.$data.styles.preset.local);
+			let blob = new Blob([json], {type: "application/json; charset=utf-8"});
+			saveAs(blob, "localStyles.json");
+		},
+		uploadJsonFile(){
+			document.getElementById('json-file-input').click();
+		},
+		importLocalStyles(){
+			let input = document.getElementById('json-file-input');
+			if (input.files && input.files[0]) {
+				let fileReader = new FileReader();
+				
+				let vm = this;
+				fileReader.onload = function (e) {
+					if (e.target.result.trim() !== ''){
+						let styles = JSON.parse(e.target.result);
+						let importedStyle = [];
+						for (key of Object.keys(styles)){
+							let style = JSON.parse(styles[key]);
+							let isValidStyle = false;
+							let backup = vm.styles.preset.local[key];
+							vm.styles.preset.local[key] = {};
+							let cleanStyle = {};
+							for (propKey of Object.keys(style)){
+								if (TEXTGEN_JSON_KEYS.includes(propKey)){
+									cleanStyle[propKey] = style[propKey];
+									isValidStyle = true;
+								}
+							}
+							if (!isValidStyle){
+								delete vm.styles.preset.local[key];
+								if (backup != null && backup != {}){
+									vm.styles.preset.local[key] = backup;
+								}
+							}
+							else{
+								vm.styles.preset.local[key] = JSON.stringify(cleanStyle);
+								importedStyle.push(key);
+							}
+						}
+						if (importedStyle.length > 0){
+							alert("已匯入下列模板：\n" + importedStyle.join('\n'));
+							localStorage.setItem("localStyles", JSON.stringify(vm.$data.styles.preset.local));
+							vm.$forceUpdate();
+						}
+						else{
+							alert("模板格式錯誤，無法匯入。");
+						}
+					}
+				}
+				
+				fileReader.readAsText(input.files[0]);
+			}
+		},
 	},
 	computed: {
+		hideNumLabel(){
+			return this.userConfig.useNumberInput || this.userConfig.isAdvEdit;
+		},
+		numRangeInputType(){
+			return this.userConfig.isAdvEdit ? 'text' : this.userConfig.useNumberInput ? 'number' : 'range';
+		},
 		numInputType(){
-			return this.uiConfig.useNumberInput ? 'number' : 'range';
+			return this.userConfig.isAdvEdit ? 'text' : 'number';
+		},
+		htmlZoom(){
+			let width = Math.ceil(document.getElementById("capture").getBoundingClientRect().width);
+			width = width + 'px';
+			return 'transform: scale(' + this.userConfig.htmlZoomLevel+ '); width:'+width;
+		},
+		htmlZoomWrapper(){
+			let height = Math.ceil(document.getElementById("capture").getBoundingClientRect().height);
+			let width = Math.ceil(document.getElementById("capture").getBoundingClientRect().width);
+			height = height * this.userConfig.htmlZoomLevel + 'px';
+			width = width * this.userConfig.htmlZoomLevel + 'px';
+			return 'height:' + height + '; max-width:' + width;
 		},
 		previewZoom(){
-			return 'transform: scale(' + this.uiConfig.zoomLevel+ ')';
+			let width = Math.ceil(document.getElementById("capture").getBoundingClientRect().width);
+			width = width + 'px';
+			return 'transform: scale(' + this.userConfig.zoomLevel+ '); width:'+width;
 		},
 		textStyle(){
+			this.sys.needRender = true;
 			return this.getStyle(this.text);
 		},
 		leftBoxStyle(){
+			this.sys.needRender = true;
 			return this.getStyle(this.leftBox);
 		},
+		rightBoxStyle(){
+			this.sys.needRender = true;
+			return this.getStyle(this.rightBox);
+		},
 		boxStyle(){
+			this.sys.needRender = true;
 			return this.getStyle(this.box);
 		},
 		containerStyle(){
+			this.sys.needRender = true;
 			return this.getStyle(this.container, true);
-		}
+		},
 	},
 	watch:{
 		"styles.selected": function(val, oldVal){
 			if (val === null || val === undefined || val === ''){
 				return;
 			}
+			this.sys.needRender = true;
+			this.sys.forceRender = true;
 			this.importJson(resolve(this.styles.preset, val));
 			if (val.startsWith('local-')){
 				this.styles.newStyleName = val.replace('local-', '');
 			}
 		},
+		"uiConfig.isDetailBorderMode": function(val, oldVal){
+			this.sys.needRender = true;
+			this.sys.forceRender = true;
+		},
+		"userConfig": {
+			handler:  function(val, oldVal){
+				localStorage.setItem("userConfig", JSON.stringify(this.userConfig));
+			},
+			deep: true,
+		}
 	}
 });
 
