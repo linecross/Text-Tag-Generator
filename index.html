@@ -21,7 +21,7 @@
 </head>
 
 <body>
-	<h3>標籤製造器1.0</h3>
+	<h3>標籤製造器1.1</h3>
 	<hr>
 	<div id='textGeneratorApp'>
 		<span>
@@ -313,15 +313,15 @@
 							<tr>
 								<td>
 									<select v-model="styles.selected">
+										<optgroup label="本機">
+											<option v-for="(content, key) in styles.preset.local" :value="'local-'+key">{{key}}</option>
+										</optgroup>
 										<optgroup label="預設">
 										<option v-for="(content, key) in styles.preset.default" :value="'default-'+key">{{key}}</option>
 										</optgroup>
 										<!-- <optgroup label="自訂">
 											<option v-for="(content, key) in styles.preset.custom" :value="'custom-'+key">{{key}}</option>
 										</optgroup> -->
-										<optgroup label="本機">
-											<option v-for="(content, key) in styles.preset.local" :value="'local-'+key">{{key}}</option>
-										</optgroup>
 									</select>
 								</td>
 								<td>
