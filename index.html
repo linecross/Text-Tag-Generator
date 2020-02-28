@@ -11,6 +11,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
 	<script type="text/javascript" src="./res/js/html2canvas.min.js"></script>
 	<!-- <script type="text/javascript" src="./res/js/html2canvas.js"></script> -->
+	<script type="text/javascript" src='https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js'></script>
+	<script type="text/javascript" src='https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js'></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js'></script>
 	<script type="text/javascript" src="./res/js/style-presets.js"></script>
 	
@@ -23,44 +25,85 @@
 	<hr>
 	<div id='textGeneratorApp'>
 		<span>
-			<input type="checkbox" id="viewBoxConfig" :value="true" v-model="uiConfig.isBoxMode">
-			<label for="viewBoxConfig">內框設定</label>&nbsp;
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="viewBoxConfig" value="true" v-model="uiConfig.isBoxMode">
+				<label for="viewBoxConfig">內框設定</label>
+				<span class='tooltip'>進一步設定標籤內的小框與左側文字</span>
+			</span>&nbsp;
 
-			<input type="checkbox" id="viewBorderConfig" :value="true" v-model="uiConfig.isDetailBorderMode">
-			<label for="viewBorderConfig">詳細邊框設定</label>&nbsp;
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="viewBorderConfig" value="true" v-model="uiConfig.isDetailBorderMode">
+				<label for="viewBorderConfig">詳細邊框設定</label>
+				<span class='tooltip'>可以設定邊框的上、下、左、右四側的顏色、大小、圓角等屬性。<br/>預設上、下、左、右屬性全部相同。</span>
+			</span>&nbsp;
 
-			<input type="checkbox" id="viewImageConfig" :value="true" v-model="uiConfig.isImageMode">
-			<label for="viewImageConfig">背景圖設定</label>&nbsp;
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="viewImageConfig" value="true" v-model="uiConfig.isImageMode">
+				<label for="viewImageConfig">背景圖設定</label>
+				<span class='tooltip'>加入標籤的背景圖或內框的背景圖</span>
+			</span>&nbsp;
+			
+			&nbsp;|&nbsp;
+
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="numInputConfig" value="true" v-model="userConfig.useNumberInput">
+				<label for="numInputConfig">數字輸入</label>
+				<span class='tooltip'>不要滑動式調整數字，直接鍵盤輸入數字</span>
+			</span>&nbsp;
+
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="canvasRenderConfig" value="true" v-model="userConfig.isRealtimeRender">
+				<label for="canvasRenderConfig">即時渲染</label>
+				<span class='tooltip'>
+					<b>即時渲染：</b>改變數值後，即時產生圖片 <span class='warning'>*反應較慢，需要較高性能</span><br/>
+					<b>非即時渲染：</b>改變數值後，離開控制項才會產生圖片 <span class='warning'>*反應較快，建議搭配HTML版的放大預覽使用</span>
+				</span>
+			</span>&nbsp;
 
 			&nbsp;|&nbsp;
 
-			<input type="checkbox" id="numInputConfig" :value="true" v-model="uiConfig.useNumberInput">
-			<label for="numInputConfig">數字輸入</label>&nbsp;
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="viewAdvEditConfig" value="true" v-model="userConfig.isAdvEdit">
+				<label for="viewAdvEditConfig">進階編輯</label>
+				<span class='tooltip'>如果依然無法滿足需求，可嘗試試進階編輯功能並直接輸入CSS屬性、自訂單位</span>
+			</span>&nbsp;
 
 			&nbsp;|&nbsp;
 
-			<input type="checkbox" id="styleOperationConfig" :value="true" v-model="uiConfig.showStyleOperation">
-			<label for="styleOperationConfig">模板及JSON</label>&nbsp;
+			<span class='tooltipWrapper'>
+				<input type="checkbox" id="styleOperationConfig" value="true" v-model="userConfig.showStyleOperation">
+				<label for="styleOperationConfig">模板及JSON</label>
+				<span class='tooltip'>匯入、匯出模板至瀏覽器或JSON文字，方便日後重用</span>
+			</span>&nbsp;
+
+			<div class="warning" :class="{isHide: !userConfig.isAdvEdit}">
+				進階編輯沒有最小、最大數值限制，可輸入自訂單位，有額外功能，僅建議有CSS基礎人士使用。<br />
+				注意：退出進階編輯，再修改屬性，將會失去自訂單位及超過限額的數字。
+			</div>
 		</span>
 		<div class='main-panel'>
-			<div class='config-panel'>
+			<div class='config-panel' @change='triggerUIChange'>
 				<h3>文字部份</h3>
+				<div :class="{isHide: !userConfig.isAdvEdit}">
+					背景色：<input id='text-backgroundColor-cpicker'>
+					<input id='text-backgroundColor' class='colorInput' type="text" v-model="text.backgroundColor">
+				</div>
 				<div>顏色：<input id='text-color-cpicker'>
 					<input id='text-color' class='colorInput' type="text" v-model="text.color">
 				</div>
 				<div>文字：<input type="text" v-model="text.content"></div>
-				<div>大小：<input :type="numInputType" v-model="text.fontSize" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{text.fontSize}}</span> </div>
+				<div>大小：<input :type="numRangeInputType" v-model="text.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{text.fontSize}}</span> </div>
 				<div>字型：<input type="text" v-model="text.fontFamily"> </div>
-				<div>間距：<input :type="numInputType" v-model="text.letterSpacing" min="-3" max="3"><span :class="{isHide: uiConfig.useNumberInput}">{{text.letterSpacing}}</span> </div>
+				<div>間距：<input :type="numRangeInputType" v-model="text.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{text.letterSpacing}}</span> </div>
 				<div>空白：
 					<select v-model="text.whiteSpace">
 						<option value="normal">正常</option>
 						<option value="nowrap">不換行</option>
 					</select>
 				</div>
-				<div>水平位移：<input :type="numInputType" v-model="text.marginLeft" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginLeft}}</span> </div>
-				<div>垂直位移：<input :type="numInputType" v-model="text.marginTop" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{text.marginTop}}</span> </div>
-				<div>text-shadow: <input type="text" v-model="text.textShadow"></div>
+				<div>水平位移：<input :type="numRangeInputType" v-model="text.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{text.marginLeft}}</span> </div>
+				<div>垂直位移：<input :type="numRangeInputType" v-model="text.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{text.marginTop}}</span> </div>
+				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="text.customCss"></textarea></div>
 				<br/>
 
 				<h3>標籤部份</h3>
@@ -68,29 +111,29 @@
 					<input id='container-backgroundColor' class='colorInput' type="text" v-model="container.backgroundColor">
 				</div>
 
-				<div>寬度：<input :type="numInputType" v-model="container.width" min="8" max="128"><span :class="{isHide: uiConfig.useNumberInput}">{{container.width}}</span> </div>
-				<div>高度：<input :type="numInputType" v-model="container.height" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{container.height}}</span> </div>
+				<div>寬度：<input :type="numRangeInputType" v-model="container.width" min="8" max="128"><span :class="{isHide: hideNumLabel}">{{container.width}}</span> </div>
+				<div>高度：<input :type="numRangeInputType" v-model="container.height" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{container.height}}</span> </div>
 
 				<div>邊框圓角：
 					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numInputType" v-model="container.borderRadius" min="0" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{container.borderRadius}}</span>
+						<input :type="numRangeInputType" v-model="container.borderRadius" min="0" max="48"><span :class="{isHide: hideNumLabel}">{{container.borderRadius}}</span>
 					</div>
 					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左上：<input type="number" v-model="container.borderTopLeftRadius" min="0" max="48">
-						　右上：<input type="number" v-model="container.borderTopRightRadius" min="0" max="48"><br>
-						左下：<input type="number" v-model="container.borderBottomLeftRadius" min="0" max="48">
-						　右上：<input type="number" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
+						左上：<input :type="numInputType" v-model="container.borderTopLeftRadius" min="0" max="48">
+						　右上：<input :type="numInputType" v-model="container.borderTopRightRadius" min="0" max="48"><br>
+						左下：<input :type="numInputType" v-model="container.borderBottomLeftRadius" min="0" max="48">
+						　右上：<input :type="numInputType" v-model="container.borderBottomRightRadius" min="0" max="48"><br>
 					</div>
 				</div>
 				<div>邊框大小：
 					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numInputType" v-model="container.borderWidth" min="0" max="25"><span :class="{isHide: uiConfig.useNumberInput}">{{container.borderWidth}}</span>
+						<input :type="numRangeInputType" v-model="container.borderWidth" min="0" max="25"><span :class="{isHide: hideNumLabel}">{{container.borderWidth}}</span>
 					</div>
 					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左：<input type="number" v-model="container.borderLeftWidth" min="0" max="25">
-						　右：<input type="number" v-model="container.borderRightWidth" min="0" max="25"><br>
-						上：<input type="number" v-model="container.borderTopWidth" min="0" max="25">
-						　下：<input type="number" v-model="container.borderBottomWidth" min="0" max="25"><br>
+						左：<input :type="numInputType" v-model="container.borderLeftWidth" min="0" max="25">
+						　右：<input :type="numInputType" v-model="container.borderRightWidth" min="0" max="25"><br>
+						上：<input :type="numInputType" v-model="container.borderTopWidth" min="0" max="25">
+						　下：<input :type="numInputType" v-model="container.borderBottomWidth" min="0" max="25"><br>
 					</div>
 				</div>
 				
@@ -110,9 +153,11 @@
 						<input id='container-borderBottomColor' class='colorInput' type="text" v-model="container.borderBottomColor"><br>
 					</div>
 				</div>
+
+				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="container.customCss"></textarea></div>
 			</div>
 
-			<div class='config-panel' :class='{isHide: !uiConfig.isBoxMode}'>
+			<div class='config-panel' :class='{isHide: !uiConfig.isBoxMode}' @change='triggerUIChange'>
 				<h3>左側文字</h3>
 				<div>背景顏色：<input id='leftBox-backgroundColor-cpicker'>
 					<input id='leftBox-backgroundColor' class='colorInput' type="text" v-model="leftBox.backgroundColor">
@@ -121,52 +166,75 @@
 					<input id='leftBox-color' class='colorInput' type="text" v-model="leftBox.color">
 				</div>
 				<div>文字：<input type="text" v-model="leftBox.content"></div>
-				<div>大小：<input :type="numInputType" v-model="leftBox.fontSize" min="8" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.fontSize}}</span> </div>
+				<div>大小：<input :type="numRangeInputType" v-model="leftBox.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.fontSize}}</span> </div>
 				<div>字型：<input type="text" v-model="leftBox.fontFamily"> </div>
-				<div>間距：<input :type="numInputType" v-model="leftBox.letterSpacing" min="-3" max="3"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.letterSpacing}}</span> </div>
+				<div>間距：<input :type="numRangeInputType" v-model="leftBox.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{leftBox.letterSpacing}}</span> </div>
 				<div>空白：
 					<select v-model="leftBox.whiteSpace">
 						<option value="normal">正常</option>
 						<option value="nowrap">不換行</option>
 					</select>
 				</div>
-				<div>水平位移：<input :type="numInputType" v-model="leftBox.marginLeft" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginLeft}}</span> </div>
-				<div>垂直位移：<input :type="numInputType" v-model="leftBox.marginTop" min="-48" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{leftBox.marginTop}}</span> </div>
-				<div>text-shadow: <input type="text" v-model="leftBox.textShadow"></div>
+				<div>水平位移：<input :type="numRangeInputType" v-model="leftBox.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.marginLeft}}</span> </div>
+				<div>垂直位移：<input :type="numRangeInputType" v-model="leftBox.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{leftBox.marginTop}}</span> </div>
+				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="leftBox.customCss"></textarea></div>
+
+				<div :class='{isHide: !userConfig.isAdvEdit}'>
+					<h3>右側文字</h3>
+					<div>背景顏色：<input id='rightBox-backgroundColor-cpicker'>
+						<input id='rightBox-backgroundColor' class='colorInput' type="text" v-model="rightBox.backgroundColor">
+					</div>
+					<div>文字顏色：<input id='rightBox-color-cpicker'>
+						<input id='rightBox-color' class='colorInput' type="text" v-model="rightBox.color">
+					</div>
+					<div>文字：<input type="text" v-model="rightBox.content"></div>
+					<div>大小：<input :type="numRangeInputType" v-model="rightBox.fontSize" min="8" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.fontSize}}</span> </div>
+					<div>字型：<input type="text" v-model="rightBox.fontFamily"> </div>
+					<div>間距：<input :type="numRangeInputType" v-model="rightBox.letterSpacing" min="-3" max="3"><span :class="{isHide: hideNumLabel}">{{rightBox.letterSpacing}}</span> </div>
+					<div>空白：
+						<select v-model="rightBox.whiteSpace">
+							<option value="normal">正常</option>
+							<option value="nowrap">不換行</option>
+						</select>
+					</div>
+					<div>水平位移：<input :type="numRangeInputType" v-model="rightBox.marginLeft" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.marginLeft}}</span> </div>
+					<div>垂直位移：<input :type="numRangeInputType" v-model="rightBox.marginTop" min="-48" max="48"><span :class="{isHide: hideNumLabel}">{{rightBox.marginTop}}</span> </div>
+					<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="rightBox.customCss"></textarea></div>
+				</div>
+
 
 				<h3>內框部份</h3>
 				<div>顏色：<input id='box-backgroundColor-cpicker'>
 					<input id='box-backgroundColor' class='colorInput' type="text" v-model="box.backgroundColor">
 				</div>
-
 				留白：
 				<div>
-					左：<input type="number" v-model="box.paddingLeft" min="0" max="15">
-					　右：<input type="number" v-model="box.paddingRight" min="0" max="15"><br>
-					上：<input type="number" v-model="box.paddingTop" min="0" max="15">
-					　下：<input type="number" v-model="box.paddingBottom" min="0" max="15"><br>
+					左：<input :type="numInputType" v-model="box.paddingLeft" min="0" max="15">
+					　右：<input :type="numInputType" v-model="box.paddingRight" min="0" max="15"><br>
+					上：<input :type="numInputType" v-model="box.paddingTop" min="0" max="15">
+					　下：<input :type="numInputType" v-model="box.paddingBottom" min="0" max="15"><br>
 				</div>
 
 				<div>邊框圓角：
 					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numInputType" v-model="box.borderRadius" min="0" max="48"><span :class="{isHide: uiConfig.useNumberInput}">{{box.borderRadius}}</span>
+						<input :type="numRangeInputType" v-model="box.borderRadius" min="0" max="48"><span :class="{isHide: hideNumLabel}">{{box.borderRadius}}</span>
 					</div>
 					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左上：<input type="number" v-model="box.borderTopLeftRadius" min="0" max="48">
-						　右上：<input type="number" v-model="box.borderTopRightRadius" min="0" max="48"><br>
-						左下：<input type="number" v-model="box.borderBottomLeftRadius" min="0" max="48">
-						　右上：<input type="number" v-model="box.borderBottomRightRadius" min="0" max="48"><br>
+						左上：<input :type="numInputType" v-model="box.borderTopLeftRadius" min="0" max="48">
+						　右上：<input :type="numInputType" v-model="box.borderTopRightRadius" min="0" max="48"><br>
+						左下：<input :type="numInputType" v-model="box.borderBottomLeftRadius" min="0" max="48">
+						　右上：<input :type="numInputType" v-model="box.borderBottomRightRadius" min="0" max="48"><br>
 					</div>
 				</div>
 				<div>邊框大小：
 					<div :class="{isHide: uiConfig.isDetailBorderMode}">
-						<input :type="numInputType" v-model="box.borderWidth" min="0" max="15"><span :class="{isHide: uiConfig.useNumberInput}">{{box.borderWidth}}</span>
+						<input :type="numRangeInputType" v-model="box.borderWidth" min="0" max="15"><span :class="{isHide: hideNumLabel}">{{box.borderWidth}}</span>
 					</div>
 					<div :class="{isHide: !uiConfig.isDetailBorderMode}">
-						左：<input type="number" v-model="box.borderLeftWidth" min="0" max="15">
-						　右：<input type="number" v-model="box.borderRightWidth" min="0" max="15"><br>
-						上：<input type="number" v-model="box.borderTopWidth" min="0" max="15">
-						　下：<input type="number" v-model="box.borderBottomWidth" min="0" max="15"><br>
+						左：<input :type="numInputType" v-model="box.borderLeftWidth" min="0" max="15">
+						　右：<input :type="numInputType" v-model="box.borderRightWidth" min="0" max="15"><br>
+						上：<input :type="numInputType" v-model="box.borderTopWidth" min="0" max="15">
+						　下：<input :type="numInputType" v-model="box.borderBottomWidth" min="0" max="15"><br>
 					</div>
 				</div>
 				
@@ -186,9 +254,10 @@
 						<input id='box-borderBottomColor' class='colorInput' type="text" v-model="box.borderBottomColor"><br>
 					</div>
 				</div>
+				<div :class="{isHide: !userConfig.isAdvEdit}">自訂CSS:<br/><textarea v-model="box.customCss"></textarea></div>
 			</div>
 
-			<div class='config-panel' :class='{isHide: !uiConfig.isImageMode}'>
+			<div class='config-panel' :class='{isHide: !uiConfig.isImageMode}' @change='triggerUIChange'>
 				<h3>標籤背景</h3>
 				<form id='container-image-file-form'>圖片：
 					<input type='file' id="container-image-file-input" @change="uploadImage('container')"/><br/>
@@ -225,7 +294,7 @@
 			</div>
 
 			<div class='view-panel'>
-				<div :class="{isHide: !uiConfig.showStyleOperation}">
+				<div :class="{isHide: !userConfig.showStyleOperation}">
 					<h3>模板</h3>
 					<table>
 						<tr>
@@ -259,7 +328,10 @@
 					<h3>JSON</h3>
 					<button type="button" @click="importJson()">匯入</button>&nbsp;
 					<button type="button" @click="exportJson()">匯出</button><br/>
-					<textarea id='jsonData'></textarea>
+					<textarea id='jsonData'></textarea><br/>
+					<button type="button" @click="uploadJsonFile()">本機全部匯入</button>&nbsp;
+					<button type="button" @click="exportLocalStyles()">本機全部匯出</button><br/>
+					<input type="file" id="json-file-input" style='display:none' @change="importLocalStyles(this)" />
 				</div>
 				
 				<h3>儲存圖片</h3>
@@ -267,17 +339,32 @@
 				<a id="link"></a>
 
 				<h3>原始HTML</h3>
-				<p style='color: red'>（各瀏覽器渲染不同，一律以生成圖片（一倍放大）為準，請根據圖片進行微調）</p>
+				<p class='warning'>各瀏覽器渲染不同，一律以生成圖片為準，請根據圖片進行微調</p>
 				<div id="capture" class='container' :style="containerStyle">
 					<span class='box' :style="boxStyle">
 						<span class='leftBox' :style="leftBoxStyle">{{leftBox.content}}</span>
 						<span class='text' :style="textStyle">{{text.content}}</span>
+						<span class='rightBox' :style="rightBoxStyle">{{rightBox.content}}</span>
 					</span>
 				</div>
 
-				<div><h3>生成圖片</h3>
-				放大預覽：<br>
-				<input type="range" v-model="uiConfig.zoomLevel" min="1" max="10"><span>{{uiConfig.zoomLevel}}</span> </div>
+				放大預覽：
+				<input type="range" v-model="userConfig.htmlZoomLevel" min="0" max="10"><span>{{userConfig.htmlZoomLevel}}</span>
+				<div :style="htmlZoomWrapper">
+					<div class='htmlPreview' :style="htmlZoom">
+						<div class='container' :style="containerStyle">
+							<span class='box' :style="boxStyle">
+								<span class='leftBox' :style="leftBoxStyle">{{leftBox.content}}</span>
+								<span class='text' :style="textStyle">{{text.content}}</span>
+								<span class='rightBox' :style="rightBoxStyle">{{rightBox.content}}</span>
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<h3>生成圖片</h3>
+				放大預覽：
+				<input type="range" v-model="userConfig.zoomLevel" min="1" max="10"><span>{{userConfig.zoomLevel}}</span>
 				<div class='preview' :style="previewZoom">
 					<div id='result'><canvas id='myCanvas'></canvas></div>
 					<!-- <div id="preview" class='container' :style="containerStyle">

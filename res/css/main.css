@@ -18,12 +18,13 @@ body{
 .config-panel input[type="range"]{
     width: 140px;
 }
-.config-panel input[type="radio"]{
-    width: auto;
-}
 .config-panel input[type="number"]{
     width: 60px;
 }
+.config-panel input[type="text"][min]{
+    width: 35px;
+}
+
 .config-panel .colorInput{
     width: 130px;
 }
@@ -61,8 +62,15 @@ body{
 .text{
     white-space: nowrap;
 }
+
 .preview {
-	transform-origin: top left;
+    transform-origin: top left;
+    border: 1px solid transparent;
+}
+
+.htmlPreview{
+    transform-origin: top left;
+    border: 1px dashed #999;
 }
 
 #result{
@@ -76,4 +84,41 @@ body{
 .upload-image{
     max-width: 300px;
     max-height: 300px;
+}
+
+.warning{
+    color: red;
+    font-size: 0.9em;
+}
+
+.tooltipWrapper{
+    position: relative;
+}
+
+.tooltipWrapper, .tooltipWrapper > *{
+    cursor: pointer;
+}
+
+.tooltipWrapper .tooltip{
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    padding: 5px 20px;
+    white-space: nowrap;
+    max-height: 0px;
+    max-width: 0px;
+    overflow: hidden;
+    font-size: 0;
+}
+
+.tooltipWrapper:hover .tooltip{
+    background: #FFF;
+    border-radius: 20px;
+    border: 3px double rgb(255, 123, 90);
+    
+    max-height: 300px;
+    max-width: 1000px;
+    font-size: 1em;
+
+    transition: max-height 1s ease-out, max-width 1s ease-out;
 }
